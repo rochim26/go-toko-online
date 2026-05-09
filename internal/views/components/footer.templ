@@ -6,37 +6,62 @@ templ Footer(d viewdata.PageData) {
 	<footer class="footer">
 		<div class="container grid grid-4">
 			<div>
-				<h4>{ d.Store.Name }</h4>
-				<p style="font-size:.85rem;line-height:1.5">{ d.Store.Tagline }</p>
+				<div class="footer-brand">
+					<span class="logo-mark"></span>
+					{ d.Store.Name }
+				</div>
+				<p style="font-size:.86rem;line-height:1.55;margin:.4rem 0">{ d.Store.Tagline }</p>
 				if d.Store.Address != "" {
-					<p style="font-size:.85rem">{ d.Store.Address }</p>
+					<p style="font-size:.82rem;color:#94a3b8;margin:.5rem 0">{ d.Store.Address }</p>
 				}
+				<div class="socials">
+					if d.Store.WANumber != "" {
+						<a href={ templ.URL("https://wa.me/" + onlyDigits(d.Store.WANumber)) } target="_blank" rel="noopener" aria-label="WhatsApp">
+							<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20.52 3.48A11.78 11.78 0 0 0 12 0a12 12 0 0 0-10.4 17.95L0 24l6.27-1.6A12 12 0 1 0 20.52 3.48zM12 22a10 10 0 0 1-5.13-1.41l-.36-.21-3.72.95.99-3.62-.24-.37A10 10 0 1 1 12 22z"/></svg>
+						</a>
+					}
+					<a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>
+					<a href="#" aria-label="Facebook"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+					<a href="#" aria-label="TikTok"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg></a>
+				</div>
 			</div>
 			<div>
 				<h4>Belanja</h4>
-				<a href="/c/semua">Semua Produk</a><br/>
-				<a href="/cart">Keranjang</a><br/>
-				<a href="/account">Akun Saya</a><br/>
-				<a href="/account/orders">Status Pesanan</a><br/>
+				<div class="col-links">
+					<a href="/c/semua">Semua Produk</a>
+					<a href="/cart">Keranjang</a>
+					<a href="/account">Akun Saya</a>
+					<a href="/account/orders">Status Pesanan</a>
+				</div>
 			</div>
 			<div>
 				<h4>Reseller</h4>
-				<a href="/reseller/login">Login Reseller</a><br/>
-				<a href="/reseller/register">Daftar Reseller</a><br/>
+				<div class="col-links">
+					<a href="/reseller/login">Login Reseller</a>
+					<a href="/reseller/register">Daftar Reseller</a>
+				</div>
 			</div>
 			<div>
 				<h4>Bantuan</h4>
-				<a href="/p/faq">FAQ</a><br/>
-				<a href="/p/tentang-kami">Tentang Kami</a><br/>
-				<a href="/p/kebijakan-privasi">Kebijakan Privasi</a><br/>
-				<a href="/p/syarat-ketentuan">Syarat & Ketentuan</a><br/>
-				if d.Store.WANumber != "" {
-					<a href={ templ.URL("https://wa.me/" + onlyDigits(d.Store.WANumber)) } target="_blank" rel="noopener">WhatsApp</a>
-				}
+				<div class="col-links">
+					<a href="/p/faq">FAQ</a>
+					<a href="/p/tentang-kami">Tentang Kami</a>
+					<a href="/p/kebijakan-privasi">Kebijakan Privasi</a>
+					<a href="/p/syarat-ketentuan">Syarat & Ketentuan</a>
+					if d.Store.WANumber != "" {
+						<a href={ templ.URL("https://wa.me/" + onlyDigits(d.Store.WANumber)) } target="_blank" rel="noopener">WhatsApp</a>
+					}
+				</div>
 			</div>
 		</div>
 		<div class="container footer-bottom">
-			© { yearStr() } { d.Store.Name }. Hak cipta dilindungi.
+			<span>© { yearStr() } { d.Store.Name }. Hak cipta dilindungi.</span>
+			<span class="footer-payments">
+				<span class="pay">QRIS</span>
+				<span class="pay">VA</span>
+				<span class="pay">e-Wallet</span>
+				<span class="pay">COD</span>
+			</span>
 		</div>
 	</footer>
 }

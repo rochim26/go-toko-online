@@ -4,47 +4,59 @@ import "github.com/tokoonline/app/internal/views/layouts"
 
 templ Login(d layouts.PageData, errMsg, email, next string) {
 	@layouts.Public(d) {
-		<div style="max-width:420px;margin:2rem auto">
-			<h1 class="h1">Masuk</h1>
+		<div style="max-width:440px;margin:2.5rem auto">
+			<div style="text-align:center;margin-bottom:1.5rem">
+				<h1 class="h1" style="margin-bottom:.25rem">Selamat Datang Kembali</h1>
+				<p class="muted">Masuk untuk melanjutkan belanja Anda</p>
+			</div>
 			if errMsg != "" {
 				<div class="flash flash-error">{ errMsg }</div>
 			}
-			<form method="POST" action="/login" class="card">
+			<form method="POST" action="/login" class="card" style="padding:1.5rem">
 				<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
 				<input type="hidden" name="next" value={ next }/>
 				<div class="field">
 					<label>Email</label>
-					<input class="input" type="email" name="email" value={ email } required/>
+					<input class="input" type="email" name="email" value={ email } required autofocus/>
 				</div>
 				<div class="field">
 					<label>Password</label>
 					<input class="input" type="password" name="password" required/>
 				</div>
-				<button class="btn btn-block" type="submit">Masuk</button>
-				<p class="muted" style="text-align:center;margin-top:1rem;font-size:.875rem">
-					Belum punya akun? <a href="/register">Daftar</a><br/>
-					Atau masuk sebagai <a href="/admin/login">Admin</a> · <a href="/reseller/login">Reseller</a>
+				<button class="btn btn-block btn-lg" type="submit">Masuk</button>
+				<p class="muted" style="text-align:center;margin-top:1.25rem;font-size:.875rem">
+					Belum punya akun? <a href="/register" style="color:var(--c-link);font-weight:600">Daftar gratis</a>
 				</p>
 			</form>
+			<p class="muted" style="text-align:center;margin-top:1rem;font-size:.78rem">
+				Login alternatif: <a href="/admin/login">Admin</a> · <a href="/reseller/login">Reseller</a>
+			</p>
 		</div>
 	}
 }
 
 templ Register(d layouts.PageData, errMsg, email, name, phone string) {
 	@layouts.Public(d) {
-		<div style="max-width:480px;margin:2rem auto">
-			<h1 class="h1">Daftar Akun</h1>
+		<div style="max-width:520px;margin:2.5rem auto">
+			<div style="text-align:center;margin-bottom:1.5rem">
+				<h1 class="h1" style="margin-bottom:.25rem">Buat Akun Baru</h1>
+				<p class="muted">Belanja lebih mudah & dapat promo eksklusif</p>
+			</div>
 			if errMsg != "" {
 				<div class="flash flash-error">{ errMsg }</div>
 			}
-			<form method="POST" action="/register" class="card">
+			<form method="POST" action="/register" class="card" style="padding:1.5rem">
 				<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
-				<div class="field"><label>Nama Lengkap</label><input class="input" name="name" value={ name } required/></div>
+				<div class="field"><label>Nama Lengkap</label><input class="input" name="name" value={ name } required autofocus/></div>
 				<div class="field"><label>Email</label><input class="input" type="email" name="email" value={ email } required/></div>
-				<div class="field"><label>HP</label><input class="input" name="phone" value={ phone }/></div>
-				<div class="field"><label>Password (min. 8 karakter)</label><input class="input" type="password" name="password" minlength="8" required/></div>
-				<button class="btn btn-block" type="submit">Daftar</button>
-				<p class="muted" style="text-align:center;margin-top:1rem;font-size:.875rem">Sudah punya akun? <a href="/login">Masuk</a></p>
+				<div class="field"><label>HP / WhatsApp</label><input class="input" name="phone" value={ phone } placeholder="+62…"/></div>
+				<div class="field">
+					<label>Password</label>
+					<input class="input" type="password" name="password" minlength="8" required/>
+					<small class="muted">Minimal 8 karakter</small>
+				</div>
+				<button class="btn btn-block btn-lg btn-accent" type="submit">Daftar Sekarang</button>
+				<p class="muted" style="text-align:center;margin-top:1.25rem;font-size:.875rem">Sudah punya akun? <a href="/login" style="color:var(--c-link);font-weight:600">Masuk</a></p>
 			</form>
 		</div>
 	}

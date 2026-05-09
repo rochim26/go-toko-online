@@ -91,6 +91,40 @@ window.toast = function (msg, kind = '', ms = 2200) {
     }
   });
 
+  // Wishlist heart toggle (visual only, persisted in localStorage)
+  function loadWishlist(){
+    try { return JSON.parse(localStorage.getItem('mdt_wishlist')||'[]'); } catch(e){ return []; }
+  }
+  function saveWishlist(list){
+    try { localStorage.setItem('mdt_wishlist', JSON.stringify(list.slice(0,200))); } catch(e){}
+  }
+  function paintWishlist(){
+    const list = loadWishlist();
+    document.querySelectorAll('[data-wishlist]').forEach(el => {
+      el.classList.toggle('active', list.indexOf(el.getAttribute('data-wishlist')) >= 0);
+    });
+  }
+  paintWishlist();
+  document.body.addEventListener('click', (e) => {
+    const el = e.target.closest('[data-wishlist]');
+    if (!el) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const slug = el.getAttribute('data-wishlist');
+    const list = loadWishlist();
+    const i = list.indexOf(slug);
+    if (i >= 0) {
+      list.splice(i, 1);
+      el.classList.remove('active');
+      window.toast?.('Dihapus dari wishlist', '', 1400);
+    } else {
+      list.push(slug);
+      el.classList.add('active');
+      window.toast?.('Disimpan ke wishlist ❤', 'success', 1400);
+    }
+    saveWishlist(list);
+  });
+
   // Mobile nav toggle
   const navBtn = document.querySelector('[data-nav-toggle]');
   if (navBtn) {

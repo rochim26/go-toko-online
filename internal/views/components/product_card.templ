@@ -8,13 +8,35 @@ import (
 templ ProductCard(p *models.Product) {
 	<a class="prod" href={ templ.URL("/p/" + p.Slug) }>
 		<div class="prod-img">
+			if p.OnHand <= 0 {
+				<span class="prod-pill prod-pill-out">Habis</span>
+			} else if p.OnHand <= 5 {
+				<span class="prod-pill prod-pill-low">Stok Tipis</span>
+			}
 			if p.PrimaryImage != nil && *p.PrimaryImage != "" {
 				<img src={ *p.PrimaryImage } alt={ p.Name } loading="lazy"/>
 			} else {
-				<div style="color:var(--c-muted);font-size:.85rem">No image</div>
+				<div class="no-img">
+					<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+					<span>Foto belum tersedia</span>
+				</div>
+			}
+			<span class="prod-wish" role="button" aria-label="Tambah ke wishlist" data-wishlist={ p.Slug }>
+				<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+			</span>
+			if p.OnHand > 0 {
+				<span class="prod-quick" role="button" aria-hidden="true">
+					<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h2l3 12h12l3-9H6"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>
+					Lihat Produk
+				</span>
 			}
 		</div>
 		<div class="prod-body">
+			if p.CategoryName != nil && *p.CategoryName != "" {
+				<div class="prod-cat">{ *p.CategoryName }</div>
+			} else if p.BrandName != nil && *p.BrandName != "" {
+				<div class="prod-cat">{ *p.BrandName }</div>
+			}
 			<div class="prod-title">{ p.Name }</div>
 			<div class="prod-price">
 				if p.MinPrice == p.MaxPrice {
@@ -23,9 +45,7 @@ templ ProductCard(p *models.Product) {
 					{ httpx.IDR(p.MinPrice) } – { httpx.IDR(p.MaxPrice) }
 				}
 			</div>
-			if p.OnHand <= 0 {
-				<div class="prod-meta"><span class="badge badge-danger">Stok Habis</span></div>
-			} else if p.BrandName != nil {
+			if p.OnHand > 0 && p.BrandName != nil && p.CategoryName != nil {
 				<div class="prod-meta">{ *p.BrandName }</div>
 			}
 		</div>

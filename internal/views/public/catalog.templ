@@ -28,11 +28,28 @@ templ Catalog(d layouts.PageData, category *models.Category, products []*models.
 			}
 		</h1>
 		if category != nil && category.Description != nil && *category.Description != "" {
-			<p class="muted">{ *category.Description }</p>
+			<p class="muted" style="max-width:48rem;margin-top:-.5rem">{ *category.Description }</p>
 		}
-		<div class="muted" style="margin-bottom:1rem">{ totalLabel(total) }</div>
+		<div class="toolbar">
+			<div class="count">{ totalLabel(total) }</div>
+			<div class="sort">
+				<span class="muted">Urutkan</span>
+				<select class="select" onchange="if(this.value){const u=new URL(location.href);u.searchParams.set('sort',this.value);location.href=u.toString();}">
+					<option value="">Paling Relevan</option>
+					<option value="newest">Terbaru</option>
+					<option value="price-asc">Harga Termurah</option>
+					<option value="price-desc">Harga Termahal</option>
+					<option value="name">Nama A–Z</option>
+				</select>
+			</div>
+		</div>
 		if len(products) == 0 {
-			<div class="card">Belum ada produk yang cocok. Coba kata kunci lain.</div>
+			<div class="empty">
+				<div class="empty-ico"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg></div>
+				<h3>Belum ada produk yang cocok</h3>
+				<p>Coba kata kunci lain atau lihat semua produk kami.</p>
+				<a class="btn" href="/c/semua">Lihat Semua Produk</a>
+			</div>
 		} else {
 			<div class="grid grid-4">
 				for _, p := range products {

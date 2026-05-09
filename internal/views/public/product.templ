@@ -15,29 +15,47 @@ templ Product(d layouts.PageData, p *models.Product, variants []*models.Variant,
 			}
 			<span>{ p.Name }</span>
 		</nav>
-		<div class="grid grid-2">
-			<div>
-				if len(images) > 0 {
-					<img src={ images[0].URL } alt={ p.Name } style="width:100%;border-radius:.75rem;border:1px solid var(--c-line);aspect-ratio:1/1;object-fit:cover"/>
-					if len(images) > 1 {
-						<div class="grid grid-4" style="margin-top:.5rem">
-							for _, im := range images {
-								<img src={ im.URL } alt={ p.Name } style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:.5rem;border:1px solid var(--c-line)"/>
-							}
-						</div>
+		<div class="grid grid-2" style="gap:2rem;align-items:flex-start">
+			<div class="gallery">
+				<div class="gallery-main">
+					if len(images) > 0 {
+						<img id="gallery-main-img" src={ images[0].URL } alt={ p.Name }/>
+					} else {
+						<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--c-muted);font-size:.85rem">Foto belum tersedia</div>
 					}
-				} else {
-					<div style="aspect-ratio:1/1;background:var(--c-soft);border-radius:.75rem"></div>
+				</div>
+				if len(images) > 1 {
+					<div class="gallery-thumbs">
+						for i, im := range images {
+							<button type="button" class={ "gallery-thumb", thumbActive(i) } data-img={ im.URL } onclick="document.getElementById('gallery-main-img').src=this.dataset.img;document.querySelectorAll('.gallery-thumb').forEach(b=>b.classList.remove('active'));this.classList.add('active')">
+								<img src={ im.URL } alt={ p.Name } loading="lazy"/>
+							</button>
+						}
+					</div>
 				}
 			</div>
 			<div>
-				<h1 class="h1">{ p.Name }</h1>
 				if p.BrandName != nil {
-					<div class="muted" style="margin-bottom:.5rem">Brand: <strong>{ *p.BrandName }</strong></div>
+					<div class="prod-cat" style="margin-bottom:.4rem">{ *p.BrandName }</div>
 				}
-				<div style="font-size:1.75rem;font-weight:800;margin:1rem 0">{ httpx.IDR(defaultPrice) }</div>
+				<h1 class="h1" style="margin-top:0">{ p.Name }</h1>
+				<div class="flex gap-sm" style="font-size:.86rem;color:var(--c-muted);flex-wrap:wrap;margin-bottom:.4rem">
+					<span class="flex gap-sm">
+						<svg width="14" height="14" viewBox="0 0 24 24" fill="#d97706" stroke="none"><path d="M12 2l3 7 7 .8-5.3 4.7L18 22l-6-3.5L6 22l1.3-7.5L2 9.8 9 9z"/></svg>
+						<strong>5.0</strong> · Produk Pilihan
+					</span>
+					<span>·</span>
+					<span>SKU: <strong>{ defaultSKU(variants) }</strong></span>
+				</div>
+				<div class="pdp-price">
+					<span class="now">{ httpx.IDR(defaultPrice) }</span>
+					if compareAt := compareAtFor(variants); compareAt > defaultPrice {
+						<span class="was">{ httpx.IDR(compareAt) }</span>
+						<span class="save">−{ percentOff(compareAt, defaultPrice) }%</span>
+					}
+				</div>
 				if p.ShortDesc != nil && *p.ShortDesc != "" {
-					<p>{ *p.ShortDesc }</p>
+					<p class="muted" style="margin:0 0 1rem">{ *p.ShortDesc }</p>
 				}
 				<form hx-post="/api/cart/add" hx-swap="none" hx-trigger="submit"
 					hx-on::after-request="if(event.detail.successful){const r=JSON.parse(event.detail.xhr.responseText);htmx.trigger('body','cart:updated',{count:r.count});if(r.redirect){location.href=r.redirect;}}">
@@ -56,24 +74,36 @@ templ Product(d layouts.PageData, p *models.Product, variants []*models.Variant,
 					}
 					<div class="flex gap" style="margin-top:1rem;flex-wrap:wrap">
 						<div class="qty">
-							<button type="button" onclick="this.nextElementSibling.value=Math.max(1,(parseInt(this.nextElementSibling.value)||1)-1)">-</button>
-							<input type="number" name="qty" value="1" min="1" max="999"/>
-							<button type="button" onclick="this.previousElementSibling.value=(parseInt(this.previousElementSibling.value)||1)+1">+</button>
+							<button type="button" aria-label="Kurangi" onclick="this.nextElementSibling.value=Math.max(1,(parseInt(this.nextElementSibling.value)||1)-1)">−</button>
+							<input type="number" name="qty" value="1" min="1" max="999" aria-label="Jumlah"/>
+							<button type="button" aria-label="Tambah" onclick="this.previousElementSibling.value=(parseInt(this.previousElementSibling.value)||1)+1">+</button>
 						</div>
-						<button class="btn btn-outline" type="submit" name="action" value="add">+ Keranjang</button>
+						<button class="btn btn-outline" type="submit" name="action" value="add">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h2l3 12h12l3-9H6"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>
+							+ Keranjang
+						</button>
 						<button class="btn btn-accent" type="submit" name="action" value="buy">Beli Sekarang</button>
 					</div>
 				</form>
 				if d.Store.WANumber != "" {
-					<a class="btn btn-outline" style="margin-top:1rem" target="_blank" rel="noopener" href={ waLink(d.Store.WANumber, p.Name, d.BaseURL+"/p/"+p.Slug) }>
+					<a class="btn btn-outline btn-block" style="margin-top:.75rem" target="_blank" rel="noopener" href={ waLink(d.Store.WANumber, p.Name, d.BaseURL+"/p/"+p.Slug) }>
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.52 3.48A11.78 11.78 0 0 0 12 0a12 12 0 0 0-10.4 17.95L0 24l6.27-1.6A12 12 0 1 0 20.52 3.48zM12 22a10 10 0 0 1-5.13-1.41l-.36-.21-3.72.95.99-3.62-.24-.37A10 10 0 1 1 12 22z"/></svg>
 						Tanya via WhatsApp
 					</a>
 				}
-				<hr style="margin:1.5rem 0;border:none;border-top:1px solid var(--c-line)"/>
-				<div style="font-size:.9rem">
-					<div>SKU: <strong>{ defaultSKU(variants) }</strong></div>
-					<div>Stok: <strong>{ stockLabel(p.OnHand) }</strong></div>
-					<div>Berat: <strong>{ weightLabel(p.WeightGrams) }</strong></div>
+				<div class="pdp-trust">
+					<span class="pill"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Original 100%</span>
+					<span class="pill"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Pengiriman cepat</span>
+					<span class="pill"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Pembayaran aman</span>
+					<span class="pill"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Garansi tukar</span>
+				</div>
+				<div class="pdp-meta">
+					<div class="row"><span class="k">SKU</span><span class="v">{ defaultSKU(variants) }</span></div>
+					<div class="row"><span class="k">Stok</span><span class="v">{ stockLabel(p.OnHand) }</span></div>
+					<div class="row"><span class="k">Berat</span><span class="v">{ weightLabel(p.WeightGrams) }</span></div>
+					if p.BrandName != nil {
+						<div class="row"><span class="k">Brand</span><span class="v">{ *p.BrandName }</span></div>
+					}
 				</div>
 			</div>
 		</div>
@@ -87,20 +117,52 @@ templ Product(d layouts.PageData, p *models.Product, variants []*models.Variant,
 		<div class="sticky-cta">
 			<div class="price">{ httpx.IDR(defaultPrice) }</div>
 			<button class="btn btn-outline" type="button" onclick="document.querySelector('form[hx-post=&quot;/api/cart/add&quot;] [name=&quot;action&quot;][value=&quot;add&quot;]').click()">+ Keranjang</button>
-			<button class="btn btn-accent" type="button" onclick="document.querySelector('form[hx-post=&quot;/api/cart/add&quot;] [name=&quot;action&quot;][value=&quot;buy&quot;]').click()">Beli Sekarang</button>
+			<button class="btn btn-accent" type="button" onclick="document.querySelector('form[hx-post=&quot;/api/cart/add&quot;] [name=&quot;action&quot;][value=&quot;buy&quot;]').click()">Beli</button>
 		</div>
 		if len(p.FAQs) > 0 {
 			<h2 class="h2">Pertanyaan Umum</h2>
 			<div class="card">
 				for _, f := range p.FAQs {
-					<details style="margin-bottom:.75rem">
-						<summary style="font-weight:600;cursor:pointer">{ f.Q }</summary>
-						<div style="margin-top:.5rem">{ f.A }</div>
+					<details style="margin-bottom:.85rem;border-bottom:1px solid var(--c-line);padding-bottom:.85rem">
+						<summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:.5rem">
+							{ f.Q }
+							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;color:var(--c-muted)"><path d="M6 9l6 6 6-6"/></svg>
+						</summary>
+						<div class="muted" style="margin-top:.6rem;font-size:.92rem">{ f.A }</div>
 					</details>
 				}
 			</div>
 		}
 	}
+}
+
+func thumbActive(i int) string {
+	if i == 0 {
+		return "active"
+	}
+	return ""
+}
+
+func compareAtFor(vs []*models.Variant) float64 {
+	for _, v := range vs {
+		if v.IsDefault && v.CompareAtPrice != nil {
+			return *v.CompareAtPrice
+		}
+	}
+	for _, v := range vs {
+		if v.CompareAtPrice != nil {
+			return *v.CompareAtPrice
+		}
+	}
+	return 0
+}
+
+func percentOff(was, now float64) string {
+	if was <= 0 || now >= was {
+		return "0"
+	}
+	pct := int(((was - now) / was) * 100)
+	return intToString(pct)
 }
 
 func deref(s *string) string {
@@ -126,7 +188,7 @@ func stockLabel(n int) string {
 	if n <= 0 {
 		return "Habis"
 	}
-	return intToString(n)
+	return intToString(n) + " tersedia"
 }
 
 func weightLabel(g int) string {

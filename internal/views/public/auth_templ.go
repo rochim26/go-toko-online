@@ -43,7 +43,7 @@ func Login(d layouts.PageData, errMsg, email, next string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:420px;margin:2rem auto\"><h1 class=\"h1\">Masuk</h1>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:440px;margin:2.5rem auto\"><div style=\"text-align:center;margin-bottom:1.5rem\"><h1 class=\"h1\" style=\"margin-bottom:.25rem\">Selamat Datang Kembali</h1><p class=\"muted\">Masuk untuk melanjutkan belanja Anda</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -55,7 +55,7 @@ func Login(d layouts.PageData, errMsg, email, next string) templ.Component {
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(errMsg)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/auth.templ`, Line: 10, Col: 43}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/auth.templ`, Line: 13, Col: 43}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -66,14 +66,14 @@ func Login(d layouts.PageData, errMsg, email, next string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<form method=\"POST\" action=\"/login\" class=\"card\"><input type=\"hidden\" name=\"csrf_token\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<form method=\"POST\" action=\"/login\" class=\"card\" style=\"padding:1.5rem\"><input type=\"hidden\" name=\"csrf_token\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(d.CSRFToken)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/auth.templ`, Line: 13, Col: 62}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/auth.templ`, Line: 16, Col: 62}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -86,7 +86,7 @@ func Login(d layouts.PageData, errMsg, email, next string) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(next)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/auth.templ`, Line: 14, Col: 49}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/auth.templ`, Line: 17, Col: 49}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -99,13 +99,13 @@ func Login(d layouts.PageData, errMsg, email, next string) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(email)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/auth.templ`, Line: 17, Col: 65}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/auth.templ`, Line: 20, Col: 65}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" required></div><div class=\"field\"><label>Password</label> <input class=\"input\" type=\"password\" name=\"password\" required></div><button class=\"btn btn-block\" type=\"submit\">Masuk</button><p class=\"muted\" style=\"text-align:center;margin-top:1rem;font-size:.875rem\">Belum punya akun? <a href=\"/register\">Daftar</a><br>Atau masuk sebagai <a href=\"/admin/login\">Admin</a> · <a href=\"/reseller/login\">Reseller</a></p></form></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" required autofocus></div><div class=\"field\"><label>Password</label> <input class=\"input\" type=\"password\" name=\"password\" required></div><button class=\"btn btn-block btn-lg\" type=\"submit\">Masuk</button><p class=\"muted\" style=\"text-align:center;margin-top:1.25rem;font-size:.875rem\">Belum punya akun? <a href=\"/register\" style=\"color:var(--c-link);font-weight:600\">Daftar gratis</a></p></form><p class=\"muted\" style=\"text-align:center;margin-top:1rem;font-size:.78rem\">Login alternatif: <a href=\"/admin/login\">Admin</a> · <a href=\"/reseller/login\">Reseller</a></p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -152,7 +152,7 @@ func Register(d layouts.PageData, errMsg, email, name, phone string) templ.Compo
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div style=\"max-width:480px;margin:2rem auto\"><h1 class=\"h1\">Daftar Akun</h1>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div style=\"max-width:520px;margin:2.5rem auto\"><div style=\"text-align:center;margin-bottom:1.5rem\"><h1 class=\"h1\" style=\"margin-bottom:.25rem\">Buat Akun Baru</h1><p class=\"muted\">Belanja lebih mudah & dapat promo eksklusif</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -164,7 +164,7 @@ func Register(d layouts.PageData, errMsg, email, name, phone string) templ.Compo
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(errMsg)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/auth.templ`, Line: 38, Col: 43}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/auth.templ`, Line: 46, Col: 43}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -175,14 +175,14 @@ func Register(d layouts.PageData, errMsg, email, name, phone string) templ.Compo
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<form method=\"POST\" action=\"/register\" class=\"card\"><input type=\"hidden\" name=\"csrf_token\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<form method=\"POST\" action=\"/register\" class=\"card\" style=\"padding:1.5rem\"><input type=\"hidden\" name=\"csrf_token\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(d.CSRFToken)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/auth.templ`, Line: 41, Col: 62}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/auth.templ`, Line: 49, Col: 62}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -195,39 +195,39 @@ func Register(d layouts.PageData, errMsg, email, name, phone string) templ.Compo
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/auth.templ`, Line: 42, Col: 95}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/auth.templ`, Line: 50, Col: 95}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" required></div><div class=\"field\"><label>Email</label><input class=\"input\" type=\"email\" name=\"email\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" required autofocus></div><div class=\"field\"><label>Email</label><input class=\"input\" type=\"email\" name=\"email\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(email)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/auth.templ`, Line: 43, Col: 103}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/auth.templ`, Line: 51, Col: 103}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" required></div><div class=\"field\"><label>HP</label><input class=\"input\" name=\"phone\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" required></div><div class=\"field\"><label>HP / WhatsApp</label><input class=\"input\" name=\"phone\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(phone)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/auth.templ`, Line: 44, Col: 87}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/auth.templ`, Line: 52, Col: 98}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\"></div><div class=\"field\"><label>Password (min. 8 karakter)</label><input class=\"input\" type=\"password\" name=\"password\" minlength=\"8\" required></div><button class=\"btn btn-block\" type=\"submit\">Daftar</button><p class=\"muted\" style=\"text-align:center;margin-top:1rem;font-size:.875rem\">Sudah punya akun? <a href=\"/login\">Masuk</a></p></form></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" placeholder=\"+62…\"></div><div class=\"field\"><label>Password</label> <input class=\"input\" type=\"password\" name=\"password\" minlength=\"8\" required> <small class=\"muted\">Minimal 8 karakter</small></div><button class=\"btn btn-block btn-lg btn-accent\" type=\"submit\">Daftar Sekarang</button><p class=\"muted\" style=\"text-align:center;margin-top:1.25rem;font-size:.875rem\">Sudah punya akun? <a href=\"/login\" style=\"color:var(--c-link);font-weight:600\">Masuk</a></p></form></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

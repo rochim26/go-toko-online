@@ -74,12 +74,12 @@ func Checkout(d layouts.PageData, cd CheckoutData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<h1 class=\"h1\">Checkout</h1>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<h1 class=\"h1\">Checkout</h1><div class=\"steps\"><div class=\"step done\"><span class=\"num\">✓</span> Keranjang</div><div class=\"step-sep done\"></div><div class=\"step active\"><span class=\"num\">2</span> Pengiriman</div><div class=\"step-sep\"></div><div class=\"step\"><span class=\"num\">3</span> Pembayaran</div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(cd.Cart.Items) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<p>Keranjang kosong. <a href=\"/c/semua\">Belanja dulu</a>.</p>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"empty\"><div class=\"empty-ico\"><svg viewBox=\"0 0 24 24\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 3h2l3 12h12l3-9H6\"></path><circle cx=\"9\" cy=\"20\" r=\"1.5\"></circle><circle cx=\"18\" cy=\"20\" r=\"1.5\"></circle></svg></div><h3>Keranjang kosong</h3><p>Tambah produk dulu sebelum checkout.</p><a class=\"btn btn-accent\" href=\"/c/semua\">Mulai Belanja</a></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -91,7 +91,7 @@ func Checkout(d layouts.PageData, cd CheckoutData) templ.Component {
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(d.CSRFToken)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 43, Col: 62}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 55, Col: 62}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -104,7 +104,7 @@ func Checkout(d layouts.PageData, cd CheckoutData) templ.Component {
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(cd.Email)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 51, Col: 72}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 63, Col: 72}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -117,7 +117,7 @@ func Checkout(d layouts.PageData, cd CheckoutData) templ.Component {
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(cd.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 55, Col: 57}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 67, Col: 57}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -130,7 +130,7 @@ func Checkout(d layouts.PageData, cd CheckoutData) templ.Component {
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(cd.Phone)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 60, Col: 58}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 72, Col: 58}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -171,7 +171,7 @@ func Checkout(d layouts.PageData, cd CheckoutData) templ.Component {
 						var templ_7745c5c3_Var9 string
 						templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(a.Recipient)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 71, Col: 39}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 83, Col: 39}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 						if templ_7745c5c3_Err != nil {
@@ -184,7 +184,7 @@ func Checkout(d layouts.PageData, cd CheckoutData) templ.Component {
 						var templ_7745c5c3_Var10 string
 						templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(a.Phone)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 72, Col: 31}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 84, Col: 31}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 						if templ_7745c5c3_Err != nil {
@@ -197,7 +197,7 @@ func Checkout(d layouts.PageData, cd CheckoutData) templ.Component {
 						var templ_7745c5c3_Var11 string
 						templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(a.Address)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 73, Col: 35}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 85, Col: 35}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 						if templ_7745c5c3_Err != nil {
@@ -210,7 +210,7 @@ func Checkout(d layouts.PageData, cd CheckoutData) templ.Component {
 						var templ_7745c5c3_Var12 string
 						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(a.Province)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 74, Col: 37}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 86, Col: 37}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 						if templ_7745c5c3_Err != nil {
@@ -223,7 +223,7 @@ func Checkout(d layouts.PageData, cd CheckoutData) templ.Component {
 						var templ_7745c5c3_Var13 string
 						templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(a.City)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 75, Col: 29}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 87, Col: 29}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 						if templ_7745c5c3_Err != nil {
@@ -236,7 +236,7 @@ func Checkout(d layouts.PageData, cd CheckoutData) templ.Component {
 						var templ_7745c5c3_Var14 string
 						templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(a.District)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 76, Col: 37}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 88, Col: 37}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 						if templ_7745c5c3_Err != nil {
@@ -249,7 +249,7 @@ func Checkout(d layouts.PageData, cd CheckoutData) templ.Component {
 						var templ_7745c5c3_Var15 string
 						templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(a.PostalCode)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 77, Col: 37}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 89, Col: 37}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 						if templ_7745c5c3_Err != nil {
@@ -262,7 +262,7 @@ func Checkout(d layouts.PageData, cd CheckoutData) templ.Component {
 						var templ_7745c5c3_Var16 string
 						templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(a.AreaID)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 78, Col: 31}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 90, Col: 31}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 						if templ_7745c5c3_Err != nil {
@@ -275,7 +275,7 @@ func Checkout(d layouts.PageData, cd CheckoutData) templ.Component {
 						var templ_7745c5c3_Var17 string
 						templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(a.Label)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 79, Col: 31}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 91, Col: 31}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 						if templ_7745c5c3_Err != nil {
@@ -294,7 +294,7 @@ func Checkout(d layouts.PageData, cd CheckoutData) templ.Component {
 						var templ_7745c5c3_Var18 string
 						templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(a.Label)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 83, Col: 20}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 95, Col: 20}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 						if templ_7745c5c3_Err != nil {
@@ -310,20 +310,20 @@ func Checkout(d layouts.PageData, cd CheckoutData) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div class=\"field area-wrap\"><label>Cari Kecamatan / Kota / Kode Pos</label> <input class=\"input\" id=\"area-q\" placeholder=\"Contoh: Setiabudi, Jakarta Selatan...\" hx-get=\"/api/shipping/areas\" hx-trigger=\"keyup changed delay:300ms, focus\" hx-target=\"#area-results\" hx-include=\"this\" name=\"q\" autocomplete=\"off\"><div id=\"area-results\" class=\"area-results\"></div><div id=\"area-selected\" class=\"area-selected\" style=\"display:none;margin-top:.4rem\"><span id=\"area-selected-label\"></span> <button type=\"button\" class=\"clear\" id=\"area-clear\" title=\"Ganti\">×</button></div><input type=\"hidden\" name=\"ship_area_id\" id=\"ship_area_id\" required> <input type=\"hidden\" name=\"ship_province\" id=\"ship_province\"> <input type=\"hidden\" name=\"ship_city\" id=\"ship_city\"> <input type=\"hidden\" name=\"ship_district\" id=\"ship_district\"></div><div class=\"form-grid\"><div class=\"field\"><label>Kode Pos</label> <input class=\"input\" name=\"ship_postal_code\" id=\"ship_postal_code\" required></div></div><div class=\"field\"><label>Alamat lengkap (jalan, no rumah, RT/RW, patokan)</label> <textarea class=\"input\" name=\"ship_address\" id=\"ship_address\" rows=\"3\" required></textarea></div></div><div class=\"card\" style=\"margin-top:1rem\"><h3 class=\"h3\">Kurir</h3><button class=\"btn btn-outline btn-sm\" type=\"button\" hx-get=\"/api/shipping/rates\" hx-include=\"[name='ship_area_id'],[name='ship_postal_code']\" hx-target=\"#rates\" hx-vals=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div class=\"field area-wrap\"><label>Cari Kecamatan / Kota / Kode Pos</label> <input class=\"input\" id=\"area-q\" placeholder=\"Contoh: Bandung, Jakarta Selatan, Surabaya...\" name=\"q\" autocomplete=\"off\"><div id=\"area-results\" class=\"area-results\"></div><div id=\"area-selected\" class=\"area-selected\" style=\"display:none;margin-top:.4rem\"><span id=\"area-selected-label\"></span> <button type=\"button\" class=\"clear\" id=\"area-clear\" title=\"Ganti\">×</button></div><input type=\"hidden\" name=\"ship_area_id\" id=\"ship_area_id\" required> <input type=\"hidden\" name=\"ship_province\" id=\"ship_province\"> <input type=\"hidden\" name=\"ship_city\" id=\"ship_city\"> <input type=\"hidden\" name=\"ship_district\" id=\"ship_district\"></div><div class=\"form-grid\"><div class=\"field\"><label>Kode Pos</label> <input class=\"input\" name=\"ship_postal_code\" id=\"ship_postal_code\" required></div></div><div class=\"field\"><label>Alamat lengkap (jalan, no rumah, RT/RW, patokan)</label> <textarea class=\"input\" name=\"ship_address\" id=\"ship_address\" rows=\"3\" required></textarea></div></div><div class=\"card\" style=\"margin-top:1rem\"><div class=\"flex between\" style=\"margin-bottom:.5rem\"><h3 class=\"h3\" style=\"margin:0\">Pilih Kurir</h3><button class=\"btn btn-ghost btn-sm\" type=\"button\" id=\"rates-refresh\" hx-get=\"/api/shipping/rates\" hx-include=\"[name='ship_area_id'],[name='ship_postal_code']\" hx-target=\"#rates\" hx-vals=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var19 string
 				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(`js:{weight:` + intToString(cd.Weight) + `}`)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 121, Col: 223}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 130, Col: 241}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\">Cek Ongkir</button><div id=\"rates\" style=\"margin-top:.5rem\"></div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" hx-indicator=\"#rates-loading\"><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 12a9 9 0 1 0 9-9\"></path><path d=\"M3 5v4h4\"></path></svg> Refresh</button></div><div id=\"rates-loading\" class=\"htmx-indicator\" style=\"margin-bottom:.5rem\"><div class=\"skel\" style=\"height:60px;margin-bottom:.4rem\"></div><div class=\"skel\" style=\"height:60px;margin-bottom:.4rem\"></div><div class=\"skel\" style=\"height:60px\"></div></div><div id=\"rates\" class=\"muted\" style=\"font-size:.86rem\">Pilih alamat pengiriman dulu untuk melihat ongkir.</div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -340,7 +340,7 @@ func Checkout(d layouts.PageData, cd CheckoutData) templ.Component {
 						var templ_7745c5c3_Var20 string
 						templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(intToString(cd.TOPDays))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 129, Col: 134}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 147, Col: 134}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 						if templ_7745c5c3_Err != nil {
@@ -361,19 +361,19 @@ func Checkout(d layouts.PageData, cd CheckoutData) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div class=\"card\" style=\"margin-top:1rem\"><h3 class=\"h3\">Catatan (opsional)</h3><textarea class=\"input\" name=\"notes\" rows=\"2\"></textarea></div></div><aside class=\"summary\"><h3 class=\"h3\">Ringkasan</h3>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div class=\"card\" style=\"margin-top:1rem\"><h3 class=\"h3\">Catatan (opsional)</h3><textarea class=\"input\" name=\"notes\" rows=\"2\"></textarea></div></div><aside class=\"summary\"><h3 class=\"h3\" style=\"margin-top:0\">Ringkasan Pesanan</h3><div style=\"margin-bottom:.5rem\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, it := range cd.Cart.Items {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<div class=\"sum-row\" style=\"font-size:.85rem\"><span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<div class=\"sum-row\" style=\"font-size:.85rem;padding:.3rem 0\"><span class=\"muted\" style=\"max-width:65%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var21 string
 					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(it.ProductName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 144, Col: 30}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 163, Col: 125}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 					if templ_7745c5c3_Err != nil {
@@ -386,7 +386,7 @@ func Checkout(d layouts.PageData, cd CheckoutData) templ.Component {
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(intToString(it.Qty))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 144, Col: 57}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 163, Col: 152}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 					if templ_7745c5c3_Err != nil {
@@ -399,7 +399,7 @@ func Checkout(d layouts.PageData, cd CheckoutData) templ.Component {
 					var templ_7745c5c3_Var23 string
 					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(httpx.IDR(it.UnitPrice * float64(it.Qty)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 145, Col: 57}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 164, Col: 58}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 					if templ_7745c5c3_Err != nil {
@@ -410,33 +410,59 @@ func Checkout(d layouts.PageData, cd CheckoutData) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<div class=\"sum-row\"><span>Subtotal</span><span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div><div class=\"sum-row\" style=\"border-top:1px solid var(--c-line);padding-top:.6rem\"><span>Subtotal</span><span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var24 string
 				templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(httpx.IDR(cd.Subtotal))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 148, Col: 78}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 168, Col: 139}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</span></div><div class=\"sum-row\"><span>Ongkos Kirim</span><span id=\"shipping-cell\">-</span></div><input type=\"hidden\" name=\"shipping_total\" id=\"shipping_total\" value=\"0\"> <input type=\"hidden\" name=\"courier_code\" id=\"courier_code\"> <input type=\"hidden\" name=\"courier_service\" id=\"courier_service\"><div class=\"sum-row sum-grand\"><span>Total</span><span id=\"grand-cell\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</span></div><div class=\"sum-row\"><span>Ongkos Kirim</span><span id=\"shipping-cell\" class=\"muted\">Pilih kurir</span></div><input type=\"hidden\" name=\"shipping_total\" id=\"shipping_total\" value=\"0\"> <input type=\"hidden\" name=\"courier_code\" id=\"courier_code\"> <input type=\"hidden\" name=\"courier_service\" id=\"courier_service\"><div class=\"sum-row sum-grand\"><span>Total</span><span id=\"grand-cell\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var25 string
 				templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(httpx.IDR(cd.Subtotal))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 153, Col: 101}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 173, Col: 101}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</span></div><button class=\"btn btn-accent btn-block\" type=\"submit\" style=\"margin-top:1rem\">Bayar Sekarang</button><p class=\"muted\" style=\"font-size:.75rem;margin-top:.75rem\">Dengan menekan tombol di atas, Anda menyetujui <a href=\"/p/syarat-ketentuan\">Syarat & Ketentuan</a>.</p></aside></div></form><script>\n\t\t\t(function(){\n\t\t\t\tconst subtotal = { JSStr(cd.Subtotal) };\n\t\t\t\tconst $ = id => document.getElementById(id);\n\t\t\t\tconst setArea = (a, label) => {\n\t\t\t\t\t$('ship_area_id').value = a.area || a.areaId || '';\n\t\t\t\t\t$('ship_province').value = a.province || '';\n\t\t\t\t\t$('ship_city').value = a.city || '';\n\t\t\t\t\t$('ship_district').value = a.district || '';\n\t\t\t\t\tif (a.postal) $('ship_postal_code').value = a.postal;\n\t\t\t\t\t$('area-q').value = '';\n\t\t\t\t\t$('area-q').style.display = 'none';\n\t\t\t\t\t$('area-results').innerHTML = '';\n\t\t\t\t\t$('area-selected').style.display = 'flex';\n\t\t\t\t\t$('area-selected-label').textContent = label || ($('ship_district').value + ', ' + $('ship_city').value);\n\t\t\t\t};\n\t\t\t\tconst clearArea = () => {\n\t\t\t\t\t$('ship_area_id').value = '';\n\t\t\t\t\t$('area-q').style.display = '';\n\t\t\t\t\t$('area-q').value = '';\n\t\t\t\t\t$('area-q').focus();\n\t\t\t\t\t$('area-selected').style.display = 'none';\n\t\t\t\t};\n\t\t\t\t$('area-clear').addEventListener('click', clearArea);\n\n\t\t\t\t// dismiss dropdown on click outside\n\t\t\t\tdocument.addEventListener('click', (e) => {\n\t\t\t\t\tif (!e.target.closest('.area-wrap')) $('area-results').innerHTML = '';\n\t\t\t\t});\n\n\t\t\t\tdocument.body.addEventListener('click',(e)=>{\n\t\t\t\t\tif(e.target.matches('[data-area], [data-area] *')){\n\t\t\t\t\t\tconst btn = e.target.closest('[data-area]');\n\t\t\t\t\t\tsetArea(btn.dataset, btn.dataset.label);\n\t\t\t\t\t}\n\t\t\t\t\tif(e.target.closest('[data-saved-addr]')){\n\t\t\t\t\t\tconst btn = e.target.closest('[data-saved-addr]');\n\t\t\t\t\t\tconst ds = btn.dataset;\n\t\t\t\t\t\t$('name').value = ds.recipient || $('name').value;\n\t\t\t\t\t\t$('phone').value = ds.phone || $('phone').value;\n\t\t\t\t\t\t$('ship_address').value = ds.address;\n\t\t\t\t\t\t$('ship_postal_code').value = ds.postal;\n\t\t\t\t\t\tsetArea({area: ds.area, province: ds.province, city: ds.city, district: ds.district, postal: ds.postal}, ds.label);\n\t\t\t\t\t\tdocument.querySelectorAll('.addr-chip').forEach(c => c.classList.remove('active'));\n\t\t\t\t\t\tbtn.classList.add('active');\n\t\t\t\t\t}\n\t\t\t\t\tif(e.target.matches('[data-rate], [data-rate] *')){\n\t\t\t\t\t\tconst btn = e.target.closest('[data-rate]');\n\t\t\t\t\t\tconst a = btn.dataset;\n\t\t\t\t\t\t$('shipping_total').value = a.price;\n\t\t\t\t\t\t$('courier_code').value = a.code;\n\t\t\t\t\t\t$('courier_service').value = a.service;\n\t\t\t\t\t\t$('shipping-cell').textContent = 'Rp '+Number(a.price).toLocaleString('id-ID');\n\t\t\t\t\t\t$('grand-cell').textContent = 'Rp '+Number(subtotal+parseFloat(a.price)).toLocaleString('id-ID');\n\t\t\t\t\t\tdocument.querySelectorAll('[data-rate]').forEach(b => b.style.outline = '');\n\t\t\t\t\t\tbtn.style.outline = '2px solid var(--c-primary)';\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t\t// Auto-fill from name field id=\"name\" not present, alias by attr\n\t\t\t\tif(!document.getElementById('name')){\n\t\t\t\t\tdocument.querySelectorAll('input[name=\"name\"]').forEach(i=>i.id='name');\n\t\t\t\t}\n\t\t\t\tif(!document.getElementById('phone')){\n\t\t\t\t\tdocument.querySelectorAll('input[name=\"phone\"]').forEach(i=>i.id='phone');\n\t\t\t\t}\n\t\t\t\tdocument.body.addEventListener('htmx:afterRequest',(e)=>{\n\t\t\t\t\tif(e.detail.elt.matches('form')&&e.detail.successful){\n\t\t\t\t\t\ttry{ const r=JSON.parse(e.detail.xhr.responseText); if(r.redirect){location.href=r.redirect;} }catch{}\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t})();\n\t\t\t</script>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</span></div><button class=\"btn btn-accent btn-block btn-lg\" type=\"submit\" style=\"margin-top:1rem\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"3\" y=\"11\" width=\"18\" height=\"11\" rx=\"2\"></rect><path d=\"M7 11V7a5 5 0 0 1 10 0v4\"></path></svg> Bayar Sekarang</button><p class=\"muted\" style=\"font-size:.75rem;margin-top:.75rem;text-align:center\">Dengan menekan tombol di atas, Anda menyetujui <a href=\"/p/syarat-ketentuan\">Syarat & Ketentuan</a>.</p></aside></div></form><div id=\"checkout-data\" data-subtotal=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var26 string
+				templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(JSStr(cd.Subtotal))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 182, Col: 61}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\" data-weight=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var27 string
+				templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(intToString(cd.Weight))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/checkout.templ`, Line: 182, Col: 100}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\" style=\"display:none\"></div><script>\n\t\t\t(function(){\n\t\t\t\tconst _cd = document.getElementById('checkout-data').dataset;\n\t\t\t\tconst subtotal = parseFloat(_cd.subtotal) || 0;\n\t\t\t\tconst weight = parseInt(_cd.weight, 10) || 0;\n\t\t\t\tconst $ = id => document.getElementById(id);\n\n\t\t\t\t// ── Area autocomplete (vanilla, no HTMX dependency) ──\n\t\t\t\tconst areaQ = $('area-q');\n\t\t\t\tconst areaResults = $('area-results');\n\t\t\t\tlet areaTimer = null;\n\t\t\t\tlet areaSeq = 0;\n\t\t\t\tconst queryAreas = (q) => {\n\t\t\t\t\tconst seq = ++areaSeq;\n\t\t\t\t\tif (!q) { areaResults.innerHTML = ''; return; }\n\t\t\t\t\tif (q.length < 3) {\n\t\t\t\t\t\tareaResults.innerHTML = '<div class=\"area-item muted\" style=\"cursor:default\">Ketik minimal 3 karakter untuk mencari…</div>';\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\t\t\t\t\tareaResults.innerHTML = '<div class=\"area-item muted\" style=\"cursor:default\">Mencari…</div>';\n\t\t\t\t\tfetch('/api/shipping/areas?q=' + encodeURIComponent(q), {credentials:'same-origin'})\n\t\t\t\t\t\t.then(r => r.text())\n\t\t\t\t\t\t.then(html => {\n\t\t\t\t\t\t\tif (seq !== areaSeq) return; // outdated response\n\t\t\t\t\t\t\tareaResults.innerHTML = html || '<div class=\"area-item muted\" style=\"cursor:default\">Tidak ada hasil. Coba kata kunci lain.</div>';\n\t\t\t\t\t\t})\n\t\t\t\t\t\t.catch(() => {\n\t\t\t\t\t\t\tif (seq !== areaSeq) return;\n\t\t\t\t\t\t\tareaResults.innerHTML = '<div class=\"area-item\" style=\"color:#991b1b\">Gagal memuat. Coba lagi.</div>';\n\t\t\t\t\t\t});\n\t\t\t\t};\n\t\t\t\tif (areaQ) {\n\t\t\t\t\tareaQ.addEventListener('input', () => {\n\t\t\t\t\t\tclearTimeout(areaTimer);\n\t\t\t\t\t\tareaTimer = setTimeout(() => queryAreas(areaQ.value.trim()), 250);\n\t\t\t\t\t});\n\t\t\t\t\tareaQ.addEventListener('focus', () => {\n\t\t\t\t\t\tconst v = areaQ.value.trim();\n\t\t\t\t\t\tif (v && areaResults.innerHTML === '') queryAreas(v);\n\t\t\t\t\t});\n\t\t\t\t}\n\n\t\t\t\tconst fetchRates = () => {\n\t\t\t\t\tconst aid = $('ship_area_id').value;\n\t\t\t\t\tconst postal = $('ship_postal_code').value;\n\t\t\t\t\tif (!aid && !postal) return;\n\t\t\t\t\tconst rates = $('rates');\n\t\t\t\t\tconst loader = $('rates-loading');\n\t\t\t\t\trates.style.display = 'none';\n\t\t\t\t\tif (loader) loader.style.display = 'block';\n\t\t\t\t\trates.innerHTML = '';\n\t\t\t\t\tconst url = '/api/shipping/rates?ship_area_id=' + encodeURIComponent(aid) + '&ship_postal_code=' + encodeURIComponent(postal) + '&weight=' + encodeURIComponent(weight);\n\t\t\t\t\tfetch(url, {credentials:'same-origin'})\n\t\t\t\t\t\t.then(r => r.text())\n\t\t\t\t\t\t.then(html => {\n\t\t\t\t\t\t\tif (loader) loader.style.display = 'none';\n\t\t\t\t\t\t\trates.style.display = '';\n\t\t\t\t\t\t\trates.classList.remove('muted');\n\t\t\t\t\t\t\trates.style.fontSize = '';\n\t\t\t\t\t\t\trates.innerHTML = html;\n\t\t\t\t\t\t})\n\t\t\t\t\t\t.catch(() => {\n\t\t\t\t\t\t\tif (loader) loader.style.display = 'none';\n\t\t\t\t\t\t\trates.style.display = '';\n\t\t\t\t\t\t\trates.innerHTML = '<div class=\"flash flash-error\">Gagal memuat ongkir. Coba klik Refresh.</div>';\n\t\t\t\t\t\t});\n\t\t\t\t};\n\t\t\t\tconst setArea = (a, label) => {\n\t\t\t\t\t$('ship_area_id').value = a.area || a.areaId || '';\n\t\t\t\t\t$('ship_province').value = a.province || '';\n\t\t\t\t\t$('ship_city').value = a.city || '';\n\t\t\t\t\t$('ship_district').value = a.district || '';\n\t\t\t\t\tif (a.postal) $('ship_postal_code').value = a.postal;\n\t\t\t\t\t$('area-q').value = '';\n\t\t\t\t\t$('area-q').style.display = 'none';\n\t\t\t\t\t$('area-results').innerHTML = '';\n\t\t\t\t\t$('area-selected').style.display = 'flex';\n\t\t\t\t\t$('area-selected-label').textContent = label || ($('ship_district').value + ', ' + $('ship_city').value);\n\t\t\t\t\t// reset previously chosen rate\n\t\t\t\t\t$('shipping_total').value = 0;\n\t\t\t\t\t$('courier_code').value = '';\n\t\t\t\t\t$('courier_service').value = '';\n\t\t\t\t\t$('shipping-cell').textContent = 'Menghitung…';\n\t\t\t\t\t$('shipping-cell').classList.add('muted');\n\t\t\t\t\t$('grand-cell').textContent = 'Rp ' + Number(subtotal).toLocaleString('id-ID');\n\t\t\t\t\tfetchRates();\n\t\t\t\t};\n\t\t\t\tconst clearArea = () => {\n\t\t\t\t\t$('ship_area_id').value = '';\n\t\t\t\t\t$('area-q').style.display = '';\n\t\t\t\t\t$('area-q').value = '';\n\t\t\t\t\t$('area-q').focus();\n\t\t\t\t\t$('area-selected').style.display = 'none';\n\t\t\t\t\t$('rates').innerHTML = 'Pilih alamat pengiriman dulu untuk melihat ongkir.';\n\t\t\t\t\t$('rates').classList.add('muted');\n\t\t\t\t\t$('rates').style.fontSize = '.86rem';\n\t\t\t\t\t$('shipping-cell').textContent = 'Pilih kurir';\n\t\t\t\t\t$('shipping-cell').classList.add('muted');\n\t\t\t\t};\n\t\t\t\t$('area-clear').addEventListener('click', clearArea);\n\n\t\t\t\t// dismiss dropdown on click outside\n\t\t\t\tdocument.addEventListener('click', (e) => {\n\t\t\t\t\tif (!e.target.closest('.area-wrap')) $('area-results').innerHTML = '';\n\t\t\t\t});\n\n\t\t\t\tdocument.body.addEventListener('click',(e)=>{\n\t\t\t\t\tif(e.target.matches('[data-area], [data-area] *')){\n\t\t\t\t\t\tconst btn = e.target.closest('[data-area]');\n\t\t\t\t\t\tsetArea(btn.dataset, btn.dataset.label);\n\t\t\t\t\t}\n\t\t\t\t\tif(e.target.closest('[data-saved-addr]')){\n\t\t\t\t\t\tconst btn = e.target.closest('[data-saved-addr]');\n\t\t\t\t\t\tconst ds = btn.dataset;\n\t\t\t\t\t\t$('name').value = ds.recipient || $('name').value;\n\t\t\t\t\t\t$('phone').value = ds.phone || $('phone').value;\n\t\t\t\t\t\t$('ship_address').value = ds.address;\n\t\t\t\t\t\t$('ship_postal_code').value = ds.postal;\n\t\t\t\t\t\tsetArea({area: ds.area, province: ds.province, city: ds.city, district: ds.district, postal: ds.postal}, ds.label);\n\t\t\t\t\t\tdocument.querySelectorAll('.addr-chip').forEach(c => c.classList.remove('active'));\n\t\t\t\t\t\tbtn.classList.add('active');\n\t\t\t\t\t}\n\t\t\t\t\tif(e.target.matches('[data-rate], [data-rate] *')){\n\t\t\t\t\t\tconst btn = e.target.closest('[data-rate]');\n\t\t\t\t\t\tconst a = btn.dataset;\n\t\t\t\t\t\t$('shipping_total').value = a.price;\n\t\t\t\t\t\t$('courier_code').value = a.code;\n\t\t\t\t\t\t$('courier_service').value = a.service;\n\t\t\t\t\t\t$('shipping-cell').textContent = 'Rp '+Number(a.price).toLocaleString('id-ID');\n\t\t\t\t\t\t$('shipping-cell').classList.remove('muted');\n\t\t\t\t\t\t$('grand-cell').textContent = 'Rp '+Number(subtotal+parseFloat(a.price)).toLocaleString('id-ID');\n\t\t\t\t\t\tdocument.querySelectorAll('[data-rate]').forEach(b => { b.style.outline = ''; b.style.borderColor = ''; });\n\t\t\t\t\t\tbtn.style.outline = '2px solid var(--c-accent)';\n\t\t\t\t\t\tbtn.style.outlineOffset = '-1px';\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t\t// Auto-fill from name field id=\"name\" not present, alias by attr\n\t\t\t\tif(!document.getElementById('name')){\n\t\t\t\t\tdocument.querySelectorAll('input[name=\"name\"]').forEach(i=>i.id='name');\n\t\t\t\t}\n\t\t\t\tif(!document.getElementById('phone')){\n\t\t\t\t\tdocument.querySelectorAll('input[name=\"phone\"]').forEach(i=>i.id='phone');\n\t\t\t\t}\n\t\t\t\tdocument.body.addEventListener('htmx:afterRequest',(e)=>{\n\t\t\t\t\tif(e.detail.elt.matches('form')&&e.detail.successful){\n\t\t\t\t\t\ttry{ const r=JSON.parse(e.detail.xhr.responseText); if(r.redirect){location.href=r.redirect;} }catch{}\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t})();\n\t\t\t</script>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

@@ -227,14 +227,14 @@ func AccountHome(d layouts.PageData, stats AccountStats, recent []*models.Order,
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, " <div class=\"account-grid\"><a class=\"account-stat\" href=\"/account/orders\"><div class=\"muted\">Total Pesanan</div><div class=\"num\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, " <div class=\"account-grid\"><a class=\"account-stat\" href=\"/account/orders\"><span class=\"ico\"><svg viewBox=\"0 0 24 24\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 2l-3 6v14h18V8l-3-6\"></path><path d=\"M3 8h18\"></path><path d=\"M9 12a3 3 0 0 0 6 0\"></path></svg></span><div class=\"muted\">Total Pesanan</div><div class=\"num\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(intToString(stats.OrderCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 47, Col: 52}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 48, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {
@@ -245,14 +245,14 @@ func AccountHome(d layouts.PageData, stats AccountStats, recent []*models.Order,
 				return templ_7745c5c3_Err
 			}
 			if stats.UnpaidCount > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div style=\"font-size:.8rem;color:#92400e;margin-top:.25rem\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div style=\"font-size:.8rem;color:#92400e;margin-top:.25rem;font-weight:600\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var16 string
 				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(intToString(stats.UnpaidCount))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 49, Col: 98}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 50, Col: 114}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 				if templ_7745c5c3_Err != nil {
@@ -263,40 +263,40 @@ func AccountHome(d layouts.PageData, stats AccountStats, recent []*models.Order,
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</a> <a class=\"account-stat\" href=\"/account/orders\"><div class=\"muted\">Total Belanja</div><div class=\"num\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</a> <a class=\"account-stat\" href=\"/account/orders\"><span class=\"ico\"><svg viewBox=\"0 0 24 24\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"2\" y=\"6\" width=\"20\" height=\"13\" rx=\"2\"></rect><path d=\"M2 11h20\"></path></svg></span><div class=\"muted\">Total Belanja</div><div class=\"num\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(httpx.IDR(stats.TotalSpent))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 54, Col: 50}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 56, Col: 50}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div></a> <a class=\"account-stat\" href=\"/account/addresses\"><div class=\"muted\">Alamat Tersimpan</div><div class=\"num\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div></a> <a class=\"account-stat\" href=\"/account/addresses\"><span class=\"ico\"><svg viewBox=\"0 0 24 24\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z\"></path><circle cx=\"12\" cy=\"10\" r=\"3\"></circle></svg></span><div class=\"muted\">Alamat Tersimpan</div><div class=\"num\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(intToString(stats.AddressCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 58, Col: 54}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 61, Col: 54}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div><div style=\"font-size:.8rem;color:var(--c-muted);margin-top:.25rem\">Tambah/edit alamat →</div></a> <a class=\"account-stat\" href=\"/account/profile\"><div class=\"muted\">Profil</div><div style=\"font-weight:600;margin-top:.25rem\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div><div style=\"font-size:.8rem;color:var(--c-muted);margin-top:.25rem\">Tambah/edit alamat →</div></a> <a class=\"account-stat\" href=\"/account/profile\"><span class=\"ico\"><svg viewBox=\"0 0 24 24\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"8\" r=\"4\"></circle><path d=\"M4 21a8 8 0 0 1 16 0\"></path></svg></span><div class=\"muted\">Profil</div><div style=\"font-weight:700;margin-top:.25rem\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(firstNonEmpty(stats.UserName, "Belum diisi"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 63, Col: 97}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 67, Col: 97}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
@@ -309,7 +309,7 @@ func AccountHome(d layouts.PageData, stats AccountStats, recent []*models.Order,
 			var templ_7745c5c3_Var20 string
 			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(stats.UserEmail)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 64, Col: 71}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 68, Col: 71}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 			if templ_7745c5c3_Err != nil {
@@ -337,7 +337,7 @@ func AccountHome(d layouts.PageData, stats AccountStats, recent []*models.Order,
 					var templ_7745c5c3_Var21 templ.SafeURL
 					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL("/account/orders/" + o.Code))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 83, Col: 62}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 87, Col: 62}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 					if templ_7745c5c3_Err != nil {
@@ -350,7 +350,7 @@ func AccountHome(d layouts.PageData, stats AccountStats, recent []*models.Order,
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(o.Code)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 83, Col: 79}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 87, Col: 79}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 					if templ_7745c5c3_Err != nil {
@@ -363,7 +363,7 @@ func AccountHome(d layouts.PageData, stats AccountStats, recent []*models.Order,
 					var templ_7745c5c3_Var23 string
 					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(httpx.DateID(o.CreatedAt))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 84, Col: 41}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 88, Col: 41}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 					if templ_7745c5c3_Err != nil {
@@ -398,7 +398,7 @@ func AccountHome(d layouts.PageData, stats AccountStats, recent []*models.Order,
 					var templ_7745c5c3_Var26 string
 					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(statusLabel(o.Status))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 85, Col: 75}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 89, Col: 75}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 					if templ_7745c5c3_Err != nil {
@@ -411,7 +411,7 @@ func AccountHome(d layouts.PageData, stats AccountStats, recent []*models.Order,
 					var templ_7745c5c3_Var27 string
 					templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(httpx.IDR(o.GrandTotal))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 86, Col: 64}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 90, Col: 64}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 					if templ_7745c5c3_Err != nil {
@@ -439,7 +439,7 @@ func AccountHome(d layouts.PageData, stats AccountStats, recent []*models.Order,
 				var templ_7745c5c3_Var28 string
 				templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(defaultAddr.Label)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 102, Col: 44}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 106, Col: 44}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 				if templ_7745c5c3_Err != nil {
@@ -452,7 +452,7 @@ func AccountHome(d layouts.PageData, stats AccountStats, recent []*models.Order,
 				var templ_7745c5c3_Var29 string
 				templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(defaultAddr.Recipient)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 104, Col: 38}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 108, Col: 38}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 				if templ_7745c5c3_Err != nil {
@@ -465,7 +465,7 @@ func AccountHome(d layouts.PageData, stats AccountStats, recent []*models.Order,
 				var templ_7745c5c3_Var30 string
 				templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(defaultAddr.Phone)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 104, Col: 72}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 108, Col: 72}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 				if templ_7745c5c3_Err != nil {
@@ -478,7 +478,7 @@ func AccountHome(d layouts.PageData, stats AccountStats, recent []*models.Order,
 				var templ_7745c5c3_Var31 string
 				templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(defaultAddr.Address)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 105, Col: 28}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 109, Col: 28}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 				if templ_7745c5c3_Err != nil {
@@ -491,7 +491,7 @@ func AccountHome(d layouts.PageData, stats AccountStats, recent []*models.Order,
 				var templ_7745c5c3_Var32 string
 				templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(derefStrAcc(defaultAddr.District))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 106, Col: 42}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 110, Col: 42}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 				if templ_7745c5c3_Err != nil {
@@ -504,7 +504,7 @@ func AccountHome(d layouts.PageData, stats AccountStats, recent []*models.Order,
 				var templ_7745c5c3_Var33 string
 				templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(defaultAddr.City)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 106, Col: 64}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 110, Col: 64}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 				if templ_7745c5c3_Err != nil {
@@ -517,7 +517,7 @@ func AccountHome(d layouts.PageData, stats AccountStats, recent []*models.Order,
 				var templ_7745c5c3_Var34 string
 				templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(defaultAddr.Province)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 106, Col: 90}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 110, Col: 90}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 				if templ_7745c5c3_Err != nil {
@@ -530,7 +530,7 @@ func AccountHome(d layouts.PageData, stats AccountStats, recent []*models.Order,
 				var templ_7745c5c3_Var35 string
 				templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(defaultAddr.PostalCode)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 106, Col: 117}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 110, Col: 117}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 				if templ_7745c5c3_Err != nil {
@@ -558,7 +558,7 @@ func AccountHome(d layouts.PageData, stats AccountStats, recent []*models.Order,
 				var templ_7745c5c3_Var36 templ.SafeURL
 				templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL("https://wa.me/" + onlyDigitsAcc(d.Store.WANumber)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 125, Col: 120}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 129, Col: 120}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 				if templ_7745c5c3_Err != nil {
@@ -674,7 +674,7 @@ func Profile(d layouts.PageData, name, phone, email, errMsg, okMsg string) templ
 				var templ_7745c5c3_Var39 string
 				templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(errMsg)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 179, Col: 42}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 183, Col: 42}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 				if templ_7745c5c3_Err != nil {
@@ -697,7 +697,7 @@ func Profile(d layouts.PageData, name, phone, email, errMsg, okMsg string) templ
 				var templ_7745c5c3_Var40 string
 				templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(okMsg)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 182, Col: 43}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 186, Col: 43}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 				if templ_7745c5c3_Err != nil {
@@ -715,7 +715,7 @@ func Profile(d layouts.PageData, name, phone, email, errMsg, okMsg string) templ
 			var templ_7745c5c3_Var41 string
 			templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(d.CSRFToken)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 185, Col: 61}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 189, Col: 61}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 			if templ_7745c5c3_Err != nil {
@@ -728,7 +728,7 @@ func Profile(d layouts.PageData, name, phone, email, errMsg, okMsg string) templ
 			var templ_7745c5c3_Var42 string
 			templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(email)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 188, Col: 51}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 192, Col: 51}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 			if templ_7745c5c3_Err != nil {
@@ -741,7 +741,7 @@ func Profile(d layouts.PageData, name, phone, email, errMsg, okMsg string) templ
 			var templ_7745c5c3_Var43 string
 			templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 191, Col: 94}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 195, Col: 94}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 			if templ_7745c5c3_Err != nil {
@@ -754,7 +754,7 @@ func Profile(d layouts.PageData, name, phone, email, errMsg, okMsg string) templ
 			var templ_7745c5c3_Var44 string
 			templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinStringErrs(phone)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 192, Col: 97}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 196, Col: 97}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
 			if templ_7745c5c3_Err != nil {
@@ -844,7 +844,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 				var templ_7745c5c3_Var47 string
 				templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(errMsg)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 220, Col: 42}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 224, Col: 42}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
 				if templ_7745c5c3_Err != nil {
@@ -877,7 +877,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 			var templ_7745c5c3_Var48 templ.SafeURL
 			templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(addressFormAction(form)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 231, Col: 71}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 235, Col: 71}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
 			if templ_7745c5c3_Err != nil {
@@ -890,7 +890,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 			var templ_7745c5c3_Var49 string
 			templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(d.CSRFToken)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 232, Col: 63}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 236, Col: 63}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
 			if templ_7745c5c3_Err != nil {
@@ -903,7 +903,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 			var templ_7745c5c3_Var50 string
 			templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(form.Label)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 235, Col: 58}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 239, Col: 58}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
 			if templ_7745c5c3_Err != nil {
@@ -916,7 +916,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 			var templ_7745c5c3_Var51 string
 			templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinStringErrs(form.Recipient)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 240, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 244, Col: 67}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
 			if templ_7745c5c3_Err != nil {
@@ -929,7 +929,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 			var templ_7745c5c3_Var52 string
 			templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs(form.Phone)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 244, Col: 59}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 248, Col: 59}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var52))
 			if templ_7745c5c3_Err != nil {
@@ -942,7 +942,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 			var templ_7745c5c3_Var53 string
 			templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.JoinStringErrs(form.City)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 256, Col: 24}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 260, Col: 24}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var53))
 			if templ_7745c5c3_Err != nil {
@@ -955,7 +955,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 			var templ_7745c5c3_Var54 string
 			templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.JoinStringErrs(form.AreaID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 258, Col: 79}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 262, Col: 79}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var54))
 			if templ_7745c5c3_Err != nil {
@@ -968,7 +968,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 			var templ_7745c5c3_Var55 string
 			templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.JoinStringErrs(form.Province)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 259, Col: 83}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 263, Col: 83}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var55))
 			if templ_7745c5c3_Err != nil {
@@ -981,7 +981,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 			var templ_7745c5c3_Var56 string
 			templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.JoinStringErrs(form.City)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 260, Col: 71}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 264, Col: 71}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var56))
 			if templ_7745c5c3_Err != nil {
@@ -994,7 +994,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 			var templ_7745c5c3_Var57 string
 			templ_7745c5c3_Var57, templ_7745c5c3_Err = templ.JoinStringErrs(form.District)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 261, Col: 83}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 265, Col: 83}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var57))
 			if templ_7745c5c3_Err != nil {
@@ -1007,7 +1007,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 			var templ_7745c5c3_Var58 string
 			templ_7745c5c3_Var58, templ_7745c5c3_Err = templ.JoinStringErrs(form.PostalCode)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 266, Col: 87}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 270, Col: 87}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var58))
 			if templ_7745c5c3_Err != nil {
@@ -1020,7 +1020,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 			var templ_7745c5c3_Var59 string
 			templ_7745c5c3_Var59, templ_7745c5c3_Err = templ.JoinStringErrs(form.Address)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 271, Col: 77}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 275, Col: 77}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var59))
 			if templ_7745c5c3_Err != nil {
@@ -1068,7 +1068,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 			var templ_7745c5c3_Var60 string
 			templ_7745c5c3_Var60, templ_7745c5c3_Err = templ.JoinStringErrs(intToString(len(list)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 310, Col: 61}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 314, Col: 61}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var60))
 			if templ_7745c5c3_Err != nil {
@@ -1110,7 +1110,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 				var templ_7745c5c3_Var63 string
 				templ_7745c5c3_Var63, templ_7745c5c3_Err = templ.JoinStringErrs(a.Label)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 319, Col: 16}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 323, Col: 16}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var63))
 				if templ_7745c5c3_Err != nil {
@@ -1133,7 +1133,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 				var templ_7745c5c3_Var64 string
 				templ_7745c5c3_Var64, templ_7745c5c3_Err = templ.JoinStringErrs(a.Recipient)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 325, Col: 28}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 329, Col: 28}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var64))
 				if templ_7745c5c3_Err != nil {
@@ -1146,7 +1146,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 				var templ_7745c5c3_Var65 string
 				templ_7745c5c3_Var65, templ_7745c5c3_Err = templ.JoinStringErrs(a.Phone)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 325, Col: 52}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 329, Col: 52}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var65))
 				if templ_7745c5c3_Err != nil {
@@ -1159,7 +1159,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 				var templ_7745c5c3_Var66 string
 				templ_7745c5c3_Var66, templ_7745c5c3_Err = templ.JoinStringErrs(a.Address)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 326, Col: 18}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 330, Col: 18}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var66))
 				if templ_7745c5c3_Err != nil {
@@ -1172,7 +1172,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 				var templ_7745c5c3_Var67 string
 				templ_7745c5c3_Var67, templ_7745c5c3_Err = templ.JoinStringErrs(derefStrAcc(a.District))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 327, Col: 32}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 331, Col: 32}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var67))
 				if templ_7745c5c3_Err != nil {
@@ -1185,7 +1185,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 				var templ_7745c5c3_Var68 string
 				templ_7745c5c3_Var68, templ_7745c5c3_Err = templ.JoinStringErrs(a.City)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 327, Col: 44}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 331, Col: 44}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var68))
 				if templ_7745c5c3_Err != nil {
@@ -1198,7 +1198,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 				var templ_7745c5c3_Var69 string
 				templ_7745c5c3_Var69, templ_7745c5c3_Err = templ.JoinStringErrs(a.Province)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 327, Col: 60}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 331, Col: 60}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var69))
 				if templ_7745c5c3_Err != nil {
@@ -1211,7 +1211,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 				var templ_7745c5c3_Var70 string
 				templ_7745c5c3_Var70, templ_7745c5c3_Err = templ.JoinStringErrs(a.PostalCode)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 327, Col: 77}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 331, Col: 77}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var70))
 				if templ_7745c5c3_Err != nil {
@@ -1224,7 +1224,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 				var templ_7745c5c3_Var71 templ.SafeURL
 				templ_7745c5c3_Var71, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL("/account/addresses/" + a.ID.String() + "/edit"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 330, Col: 106}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 334, Col: 106}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var71))
 				if templ_7745c5c3_Err != nil {
@@ -1242,7 +1242,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 					var templ_7745c5c3_Var72 templ.SafeURL
 					templ_7745c5c3_Var72, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("/account/addresses/" + a.ID.String() + "/default"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 332, Col: 102}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 336, Col: 102}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var72))
 					if templ_7745c5c3_Err != nil {
@@ -1255,7 +1255,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 					var templ_7745c5c3_Var73 string
 					templ_7745c5c3_Var73, templ_7745c5c3_Err = templ.JoinStringErrs(d.CSRFToken)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 333, Col: 67}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 337, Col: 67}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var73))
 					if templ_7745c5c3_Err != nil {
@@ -1273,7 +1273,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 				var templ_7745c5c3_Var74 templ.SafeURL
 				templ_7745c5c3_Var74, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("/account/addresses/" + a.ID.String() + "/delete"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 337, Col: 100}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 341, Col: 100}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var74))
 				if templ_7745c5c3_Err != nil {
@@ -1286,7 +1286,7 @@ func Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressF
 				var templ_7745c5c3_Var75 string
 				templ_7745c5c3_Var75, templ_7745c5c3_Err = templ.JoinStringErrs(d.CSRFToken)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 338, Col: 66}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 342, Col: 66}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var75))
 				if templ_7745c5c3_Err != nil {
@@ -1389,7 +1389,7 @@ func OrderHistory(d layouts.PageData, orders []*models.Order) templ.Component {
 					var templ_7745c5c3_Var78 templ.SafeURL
 					templ_7745c5c3_Var78, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL("/account/orders/" + o.Code))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 381, Col: 60}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 385, Col: 60}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var78))
 					if templ_7745c5c3_Err != nil {
@@ -1402,7 +1402,7 @@ func OrderHistory(d layouts.PageData, orders []*models.Order) templ.Component {
 					var templ_7745c5c3_Var79 string
 					templ_7745c5c3_Var79, templ_7745c5c3_Err = templ.JoinStringErrs(o.Code)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 381, Col: 77}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 385, Col: 77}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var79))
 					if templ_7745c5c3_Err != nil {
@@ -1415,7 +1415,7 @@ func OrderHistory(d layouts.PageData, orders []*models.Order) templ.Component {
 					var templ_7745c5c3_Var80 string
 					templ_7745c5c3_Var80, templ_7745c5c3_Err = templ.JoinStringErrs(httpx.DateID(o.CreatedAt))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 382, Col: 39}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 386, Col: 39}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var80))
 					if templ_7745c5c3_Err != nil {
@@ -1450,7 +1450,7 @@ func OrderHistory(d layouts.PageData, orders []*models.Order) templ.Component {
 					var templ_7745c5c3_Var83 string
 					templ_7745c5c3_Var83, templ_7745c5c3_Err = templ.JoinStringErrs(statusLabel(o.Status))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 383, Col: 73}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 387, Col: 73}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var83))
 					if templ_7745c5c3_Err != nil {
@@ -1485,7 +1485,7 @@ func OrderHistory(d layouts.PageData, orders []*models.Order) templ.Component {
 					var templ_7745c5c3_Var86 string
 					templ_7745c5c3_Var86, templ_7745c5c3_Err = templ.JoinStringErrs(paymentLabel(o.PaymentStatus))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 384, Col: 89}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 388, Col: 89}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var86))
 					if templ_7745c5c3_Err != nil {
@@ -1498,7 +1498,7 @@ func OrderHistory(d layouts.PageData, orders []*models.Order) templ.Component {
 					var templ_7745c5c3_Var87 string
 					templ_7745c5c3_Var87, templ_7745c5c3_Err = templ.JoinStringErrs(httpx.IDR(o.GrandTotal))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 385, Col: 62}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 389, Col: 62}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var87))
 					if templ_7745c5c3_Err != nil {
@@ -1511,7 +1511,7 @@ func OrderHistory(d layouts.PageData, orders []*models.Order) templ.Component {
 					var templ_7745c5c3_Var88 templ.SafeURL
 					templ_7745c5c3_Var88, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("/account/orders/" + o.Code + "/reorder"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 387, Col: 93}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 391, Col: 93}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var88))
 					if templ_7745c5c3_Err != nil {
@@ -1524,7 +1524,7 @@ func OrderHistory(d layouts.PageData, orders []*models.Order) templ.Component {
 					var templ_7745c5c3_Var89 string
 					templ_7745c5c3_Var89, templ_7745c5c3_Err = templ.JoinStringErrs(d.CSRFToken)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 388, Col: 68}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/public/account.templ`, Line: 392, Col: 68}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var89))
 					if templ_7745c5c3_Err != nil {
