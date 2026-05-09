@@ -13,6 +13,7 @@ type PageData struct {
 	OGImage     string
 	NoIndex     bool
 	BaseURL     string
+	AssetVer    string // build version for cache-busting static assets
 	CSRFToken   string
 	IsLoggedIn  bool
 	UserRole    string
@@ -23,9 +24,14 @@ type PageData struct {
 	Flash       string
 	FlashKind   string
 	BodyClass   string
-	Store       settings.StoreInfo
-	SEO         settings.SEOGlobal
-	Marketing   settings.Marketing
+	// Active key used by mobile bottom nav (one of: home, catalog, cart, account, search).
+	// If empty, the bottom nav infers from URL.
+	ActiveNav   string
+	// Hide bottom nav (e.g. checkout flow, full-screen forms).
+	HideBottomNav bool
+	Store     settings.StoreInfo
+	SEO       settings.SEOGlobal
+	Marketing settings.Marketing
 	// Admin-only data
 	OnboardingDone bool
 	Integrations   []integrations.Status

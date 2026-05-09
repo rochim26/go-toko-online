@@ -1,58 +1,91 @@
 package components
 
-import "github.com/tokoonline/app/internal/views/viewdata"
+import (
+	"strings"
 
-// Five-icon bottom nav for mobile only. Hidden on desktop via CSS.
-// Active state should be set by caller via `active` arg.
-templ BottomNav(d viewdata.PageData, active string) {
-	<nav class="bottomnav" role="navigation" aria-label="Main">
-		<a href="/" class={ activeIf("home", active) }>
-			<span class="icon-wrap">
-				<svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9"/><path d="M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10"/></svg>
-			</span>
-			Beranda
-		</a>
-		<a href="/c/semua" class={ activeIf("catalog", active) }>
-			<span class="icon-wrap">
-				<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-			</span>
-			Katalog
-		</a>
-		<a href="/cart" class={ activeIf("cart", active) }>
-			<span class="icon-wrap">
-				<svg viewBox="0 0 24 24"><path d="M3 3h2l3 12h12l3-9H6"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>
-				if d.CartCount > 0 {
-					<span class="pill">{ countLabel(d.CartCount) }</span>
-				}
-			</span>
-			Keranjang
-		</a>
-		<a href={ accountURLForBottomNav(d.UserRole) } class={ activeIf("account", active) }>
-			<span class="icon-wrap">
-				<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
-			</span>
-			Akun
-		</a>
-		<a href="/search" class={ activeIf("search", active) }>
-			<span class="icon-wrap">
-				<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-			</span>
-			Cari
-		</a>
-	</nav>
+	"github.com/tokoonline/app/internal/views/viewdata"
+)
+
+// inferActive returns one of: home, catalog, cart, account, search.
+// Falls back to ActiveNav field, otherwise infers from URL.
+func inferActive(d viewdata.PageData) string {
+	if d.ActiveNav != "" {
+		return d.ActiveNav
+	}
+	u := d.URL
+	switch {
+	case u == "" || u == "/":
+		return "home"
+	case strings.HasPrefix(u, "/cart"):
+		return "cart"
+	case strings.HasPrefix(u, "/search"):
+		return "search"
+	case strings.HasPrefix(u, "/c/"), strings.HasPrefix(u, "/p/"), strings.HasPrefix(u, "/blog"):
+		return "catalog"
+	case strings.HasPrefix(u, "/account"), strings.HasPrefix(u, "/login"), strings.HasPrefix(u, "/register"),
+		strings.HasPrefix(u, "/admin"), strings.HasPrefix(u, "/reseller"):
+		return "account"
+	}
+	return ""
 }
 
-func activeIf(want, cur string) string {
-	if want == cur {
+// Five-icon bottom nav for mobile. Hidden on desktop via CSS.
+templ BottomNav(d viewdata.PageData) {
+	if !d.HideBottomNav {
+		<nav class="bottomnav" role="navigation" aria-label="Navigasi utama">
+			@navItem("/", "home", inferActive(d), "Beranda") {
+				<svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9"/><path d="M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10"/></svg>
+			}
+			@navItem("/c/semua", "catalog", inferActive(d), "Katalog") {
+				<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+			}
+			@navItemCart(inferActive(d), d.CartCount)
+			@navItem("/search", "search", inferActive(d), "Cari") {
+				<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+			}
+			@navItemAccount(d, inferActive(d))
+		</nav>
+	}
+}
+
+templ navItem(href, key, active, label string) {
+	<a href={ templ.SafeURL(href) } class={ navItemClass(key, active) } aria-label={ label }>
+		<span class="icon-wrap">
+			{ children... }
+		</span>
+		<span class="label">{ label }</span>
+	</a>
+}
+
+templ navItemCart(active string, count int) {
+	<a href="/cart" class={ navItemClass("cart", active) } aria-label="Keranjang">
+		<span class="icon-wrap">
+			<svg viewBox="0 0 24 24"><path d="M3 3h2l3 12h12l3-9H6"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>
+			if count > 0 {
+				<span class="pill" data-cart-pill>{ countLabel(count) }</span>
+			}
+		</span>
+		<span class="label">Keranjang</span>
+	</a>
+}
+
+templ navItemAccount(d viewdata.PageData, active string) {
+	<a href={ accountURLForBottomNav(d.UserRole) } class={ navItemClass("account", active) } aria-label="Akun">
+		<span class="icon-wrap">
+			<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+		</span>
+		<span class="label">Akun</span>
+	</a>
+}
+
+func navItemClass(key, active string) string {
+	if key == active {
 		return "active"
 	}
 	return ""
 }
 
 func countLabel(n int) string {
-	if n <= 0 {
-		return ""
-	}
 	if n > 99 {
 		return "99+"
 	}
@@ -60,7 +93,7 @@ func countLabel(n int) string {
 }
 
 func itoaSm(n int) string {
-	if n == 0 {
+	if n <= 0 {
 		return "0"
 	}
 	var b [12]byte

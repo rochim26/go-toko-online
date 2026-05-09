@@ -48,6 +48,7 @@ func (h *CheckoutHandler) Show(w http.ResponseWriter, r *http.Request) {
 	d := h.Public.PageData(r)
 	d.Title = "Checkout"
 	d.NoIndex = true
+	d.HideBottomNav = true
 
 	email := middleware.UserEmail(r)
 	var name, phone string

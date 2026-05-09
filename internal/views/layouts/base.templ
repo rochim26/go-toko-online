@@ -22,7 +22,10 @@ templ Base(d PageData) {
 			<link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon-32.png"/>
 			<link rel="icon" type="image/png" sizes="192x192" href="/static/img/icon-192.png"/>
 			<link rel="apple-touch-icon" sizes="180x180" href="/static/img/apple-touch-icon.png"/>
-			<link rel="stylesheet" href="/static/css/app.css"/>
+			<link rel="preconnect" href="https://fonts.googleapis.com"/>
+			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+			<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"/>
+			<link rel="stylesheet" href={ assetURL(d, "/static/css/app.css") }/>
 			<meta property="og:type" content="website"/>
 			<meta property="og:title" content={ resolveTitle(d) }/>
 			<meta property="og:description" content={ resolveDesc(d) }/>
@@ -57,7 +60,7 @@ templ Base(d PageData) {
 			if d.Marketing.TikTokPixelID != "" {
 				@templ.Raw(`<script>!function(w,d,t){w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};var o=document.createElement("script");o.type="text/javascript",o.async=!0,o.src=i+"?sdkid="+e+"&lib="+t;var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)};ttq.load('` + d.Marketing.TikTokPixelID + `');ttq.page();}(window,document,'ttq');</script>`)
 			}
-			<script src="/static/js/app.js" defer></script>
+			<script src={ assetURL(d, "/static/js/app.js") } defer></script>
 		</head>
 		<body class={ d.BodyClass }>
 			if d.Marketing.GTMID != "" {
@@ -130,6 +133,17 @@ func resolveOG(d PageData) string {
 		return d.SEO.DefaultOGImage
 	}
 	return d.BaseURL + "/static/img/icon.svg"
+}
+
+// assetURL appends ?v=<build-hash> to bust CDN/browser cache after redeploy.
+func assetURL(d PageData, path string) string {
+	if d.AssetVer == "" {
+		return path
+	}
+	if contains(path, "?") {
+		return path + "&v=" + d.AssetVer
+	}
+	return path + "?v=" + d.AssetVer
 }
 
 func contains(s, sub string) bool {

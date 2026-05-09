@@ -21,6 +21,7 @@ import (
 	"github.com/tokoonline/app/internal/middleware"
 	"github.com/tokoonline/app/internal/models"
 	"github.com/tokoonline/app/internal/services/auth"
+	"github.com/tokoonline/app/internal/services/buildinfo"
 	"github.com/tokoonline/app/internal/services/catalog"
 	"github.com/tokoonline/app/internal/services/imageopt"
 	"github.com/tokoonline/app/internal/services/integrations"
@@ -49,6 +50,8 @@ type Handler struct {
 func (h *Handler) PageData(r *http.Request) layouts.PageData {
 	d := layouts.PageData{
 		BaseURL:    h.BaseURL,
+		AssetVer:   buildinfo.Version(),
+		URL:        r.URL.Path,
 		CSRFToken:  httpx.CSRFToken(r),
 		IsLoggedIn: middleware.UserID(r) != nil,
 		UserRole:   middleware.UserRole(r),
