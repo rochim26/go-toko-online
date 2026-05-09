@@ -23,6 +23,7 @@ import (
 	"github.com/tokoonline/app/internal/services/auth"
 	"github.com/tokoonline/app/internal/services/catalog"
 	"github.com/tokoonline/app/internal/services/imageopt"
+	"github.com/tokoonline/app/internal/services/integrations"
 	"github.com/tokoonline/app/internal/services/mailer"
 	"github.com/tokoonline/app/internal/services/order"
 	"github.com/tokoonline/app/internal/services/pdf"
@@ -46,7 +47,7 @@ type Handler struct {
 }
 
 func (h *Handler) PageData(r *http.Request) layouts.PageData {
-	return layouts.PageData{
+	d := layouts.PageData{
 		BaseURL:    h.BaseURL,
 		CSRFToken:  httpx.CSRFToken(r),
 		IsLoggedIn: middleware.UserID(r) != nil,
@@ -54,9 +55,16 @@ func (h *Handler) PageData(r *http.Request) layouts.PageData {
 		UserEmail:  middleware.UserEmail(r),
 		Store:      h.Settings.Store(),
 		SEO:        h.Settings.SEO(),
-		Marketing:  settings.Marketing{}, // hide tracking on admin
+		Marketing:  settings.Marketing{}, // hide tracking pixel on admin
 		BodyClass:  "admin",
+		Integrations: integrations.All(h.Settings),
 	}
+	if uid := middleware.UserID(r); uid != nil {
+		var done bool
+		_ = h.Pool.QueryRow(r.Context(), `SELECT onboarding_completed FROM users WHERE id=$1`, *uid).Scan(&done)
+		d.OnboardingDone = done
+	}
+	return d
 }
 
 // ---- Auth ----

@@ -76,7 +76,7 @@ func Admin(d PageData, active string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\">Dashboard</a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" data-tour=\"dashboard\" data-tour-order=\"1\" data-tour-title=\"Dashboard\" data-tour-text=\"Halaman ini menampilkan ringkasan pesanan, omzet, reseller pending, dan stok menipis.\">Dashboard</a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -98,7 +98,7 @@ func Admin(d PageData, active string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\">Pesanan</a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\" data-tour=\"orders\" data-tour-order=\"3\" data-tour-title=\"Pesanan\" data-tour-text=\"Kelola semua order: konfirmasi pembayaran, set status (dikemas/dikirim), input nomor resi. Saat status diset 'Dikirim', email otomatis terkirim ke pelanggan.\">Pesanan</a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -120,7 +120,7 @@ func Admin(d PageData, active string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\">Produk</a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" data-tour=\"products\" data-tour-order=\"2\" data-tour-title=\"Produk\" data-tour-text=\"Tambah produk dengan multi-foto upload, variasi (warna/ukuran), harga per tier reseller, SEO meta, FAQ schema, dan field Google Merchant Center.\">Produk</a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -208,7 +208,7 @@ func Admin(d PageData, active string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\">Daftar Reseller</a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" data-tour=\"resellers\" data-tour-order=\"4\" data-tour-title=\"Reseller\" data-tour-text=\"Approve atau tolak pendaftaran reseller. Saat approve, pilih tier (Bronze/Silver/Gold) — diskon dan MOQ otomatis aktif.\">Daftar Reseller</a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -362,15 +362,48 @@ func Admin(d PageData, active string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\">Pengaturan</a> <a href=\"/admin/password\">Ganti Password</a> <a href=\"/logout\">Keluar</a></aside><main class=\"main\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\" data-tour=\"settings\" data-tour-order=\"5\" data-tour-title=\"Pengaturan & Integrasi\" data-tour-text=\"Isi key API: Xendit (pembayaran), Biteship (ongkir), Meta Pixel + CAPI, GA4, GMC. Setiap tab punya panduan inline cara mendapatkan key-nya. Badge merah artinya wajib dikonfigurasi.\">Pengaturan ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
+			}
+			if d.IsLoggedIn && unconfiguredCount(d) > 0 {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<span class=\"nav-badge\" title=\"Integrasi belum dikonfigurasi\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var32 string
+				templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(intToString(unconfiguredCount(d)))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/layouts/admin.templ`, Line: 29, Col: 103}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</span>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</a> <a href=\"/admin/password\">Ganti Password</a> <a href=\"/admin/tour\">Ulangi Tutorial</a> <a href=\"/logout\">Keluar</a></aside><main class=\"main\" data-tour=\"main\" data-tour-order=\"0\" data-tour-title=\"Selamat datang di Admin Toko MDT 👋\" data-tour-text=\"Tour singkat ini akan memandu Anda melihat fitur utama. Anda bisa lewati kapan saja dan ulangi via menu 'Ulangi Tutorial' di sidebar bawah.\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if !d.OnboardingDone {
+				templ_7745c5c3_Err = templ.Raw(`<script>window.__mdt_tour=true;window.__mdt_tour_csrf="`+d.CSRFToken+`";</script>`).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, " <script src=\"/static/js/tour.js\" defer></script>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			}
 			templ_7745c5c3_Err = templ_7745c5c3_Var1.Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</main></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</main></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -382,6 +415,33 @@ func Admin(d PageData, active string) templ.Component {
 		}
 		return nil
 	})
+}
+
+func unconfiguredCount(d PageData) int {
+	n := 0
+	for _, st := range d.Integrations {
+		if st.Required && !st.Configured {
+			n++
+		}
+	}
+	return n
+}
+
+func intToString(n int) string {
+	if n == 0 {
+		return "0"
+	}
+	if n > 99 {
+		return "99+"
+	}
+	var b [12]byte
+	i := len(b)
+	for n > 0 {
+		i--
+		b[i] = byte('0' + n%10)
+		n /= 10
+	}
+	return string(b[i:])
 }
 
 func activeClass(cur, key string) string {

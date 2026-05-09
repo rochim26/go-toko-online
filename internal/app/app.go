@@ -242,6 +242,20 @@ func (a *App) Routes() http.Handler {
 			r.Post("/admin/blog", adminH.BlogCreate)
 			r.Get("/admin/blog/{id}", adminH.BlogEdit)
 			r.Post("/admin/blog/{id}", adminH.BlogUpdate)
+			// Sesi 4: missing pages + tour + test connections
+			r.Get("/admin/customers", adminH.Customers)
+			r.Get("/admin/pages", adminH.Pages)
+			r.Post("/admin/pages", adminH.PageUpsert)
+			r.Post("/admin/pages/{id}/delete", adminH.PageDelete)
+			r.Get("/admin/redirects", adminH.Redirects)
+			r.Post("/admin/redirects", adminH.RedirectCreate)
+			r.Post("/admin/redirects/{id}/delete", adminH.RedirectDelete)
+			r.Get("/admin/feeds", adminH.FeedStatus)
+			r.Get("/admin/sitemap", adminH.SitemapStatus)
+			r.Get("/admin/tour", adminH.TourPage)
+			r.Post("/admin/tour/start", adminH.ResetTour)
+			r.Post("/admin/onboarding/complete", adminH.CompleteOnboarding)
+			r.Get("/admin/test-connection/{provider}", adminH.TestConnection)
 		})
 
 		// Reseller

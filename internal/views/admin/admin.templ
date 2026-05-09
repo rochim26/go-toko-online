@@ -516,40 +516,181 @@ var _ = "// settingsStore uses CSRF token via its own form below"
 
 templ Settings(d layouts.PageData, sd SettingsData) {
 	@layouts.Admin(d, "settings") {
-		<h1 class="h1">Pengaturan</h1>
+		<h1 class="h1">Pengaturan & Integrasi</h1>
+		<p class="muted">Klik setiap tab untuk konfigurasi. Hover pada tab untuk melihat status integrasi.</p>
 		<div class="tabs">
-			for _, t := range []struct{ K, L string }{
-				{"store","Toko"},{"seo","SEO"},{"marketing","Pixel/GA4"},{"gmc","Merchant Center"},{"xendit","Xendit"},{"biteship","Biteship"},{"shipping","Pengiriman"},{"mailer","Email"},{"tax","Pajak"},{"reseller","Reseller"},
+			for _, t := range []struct{ K, L string; Keys []string }{
+				{"store","Toko",[]string{"store"}},
+				{"seo","SEO",[]string{"seo"}},
+				{"marketing","Pixel & Analytics",[]string{"meta_pixel","meta_capi","ga4_client","ga4_mp","gtm","tiktok","google_ads"}},
+				{"gmc","Merchant Center",[]string{"gmc"}},
+				{"xendit","Xendit",[]string{"xendit"}},
+				{"biteship","Biteship",[]string{"biteship"}},
+				{"shipping","Pengiriman",nil},
+				{"mailer","Email",[]string{"mailer"}},
+				{"tax","Pajak",nil},
+				{"reseller","Reseller",nil},
 			} {
-				<a class={ tabActive(t.K, sd.ActiveTab) } href={ templ.URL("/admin/settings?tab=" + t.K) }>{ t.L }</a>
+				<a class={ tabActive(t.K, sd.ActiveTab), tabClassFor(d, t.Keys) } href={ templ.URL("/admin/settings?tab=" + t.K) }
+				   data-tip={ tooltipFor(d, t.Keys...) }>
+					{ t.L }
+					{ tabIndicator(d, t.Keys) }
+				</a>
 			}
 		</div>
 		<form method="POST" action={ templ.SafeURL("/admin/settings/" + sd.ActiveTab) } class="card">
 			<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
 			if sd.ActiveTab == "store" {
+				@HelpStore()
+				if st := findStatus(d, "store"); st != nil {
+					@IntegrationRow(*st)
+				}
 				@settingsStore(sd.StoreInfo, d.CSRFToken)
 			} else if sd.ActiveTab == "seo" {
+				@HelpSEO()
+				if st := findStatus(d, "seo"); st != nil {
+					@IntegrationRow(*st)
+				}
 				@settingsSEO(sd.SEO)
 			} else if sd.ActiveTab == "marketing" {
+				@HelpMarketing()
+				for _, k := range []string{"meta_pixel","meta_capi","ga4_client","ga4_mp","gtm","tiktok","google_ads"} {
+					if st := findStatus(d, k); st != nil {
+						@IntegrationRow(*st)
+					}
+				}
 				@settingsMarketing(sd.Marketing)
 			} else if sd.ActiveTab == "gmc" {
+				@HelpGMC()
+				if st := findStatus(d, "gmc"); st != nil {
+					@IntegrationRow(*st)
+				}
 				@settingsGMC(sd.GMC)
 			} else if sd.ActiveTab == "xendit" {
+				@HelpXendit()
+				if st := findStatus(d, "xendit"); st != nil {
+					@IntegrationRow(*st)
+				}
 				@settingsXendit(sd.Xendit)
+				<div style="margin-top:1rem">
+					<button type="button" class="btn btn-outline btn-sm"
+						hx-get="/admin/test-connection/xendit" hx-target="#test-result" hx-swap="innerHTML">
+						Test Connection
+					</button>
+					<div id="test-result" style="margin-top:.5rem"></div>
+				</div>
 			} else if sd.ActiveTab == "biteship" {
+				@HelpBiteship()
+				if st := findStatus(d, "biteship"); st != nil {
+					@IntegrationRow(*st)
+				}
 				@settingsBiteship(sd.Biteship)
+				<div style="margin-top:1rem">
+					<button type="button" class="btn btn-outline btn-sm"
+						hx-get="/admin/test-connection/biteship" hx-target="#test-result" hx-swap="innerHTML">
+						Test Connection
+					</button>
+					<div id="test-result" style="margin-top:.5rem"></div>
+				</div>
 			} else if sd.ActiveTab == "shipping" {
+				@HelpShipping()
 				@settingsShipping(sd.Shipping)
 			} else if sd.ActiveTab == "mailer" {
+				@HelpMailer()
+				if st := findStatus(d, "mailer"); st != nil {
+					@IntegrationRow(*st)
+				}
 				@settingsMailer(sd.Mailer)
+				<div style="margin-top:1rem">
+					<button type="button" class="btn btn-outline btn-sm"
+						hx-get="/admin/test-connection/mailer" hx-target="#test-result" hx-swap="innerHTML">
+						Kirim Test Email
+					</button>
+					<div id="test-result" style="margin-top:.5rem"></div>
+				</div>
 			} else if sd.ActiveTab == "tax" {
+				@HelpTax()
 				@settingsTax(sd.Tax)
 			} else if sd.ActiveTab == "reseller" {
+				@HelpReseller()
 				@settingsReseller(sd.Reseller)
 			}
 			<button class="btn" type="submit" style="margin-top:1rem">Simpan</button>
 		</form>
 	}
+}
+
+func findStatus(d layouts.PageData, key string) *integrationStatus {
+	for _, st := range d.Integrations {
+		if st.Key == key {
+			s := integrationStatus(st)
+			return &s
+		}
+	}
+	return nil
+}
+
+type integrationStatus = integrationsStatus
+
+func tabClassFor(d layouts.PageData, keys []string) string {
+	if len(keys) == 0 {
+		return ""
+	}
+	allOK := true
+	hasReqMissing := false
+	for _, k := range keys {
+		for _, st := range d.Integrations {
+			if st.Key != k {
+				continue
+			}
+			if !st.Configured {
+				allOK = false
+				if st.Required {
+					hasReqMissing = true
+				}
+			}
+		}
+	}
+	if allOK {
+		return "tip"
+	}
+	if hasReqMissing {
+		return "tip"
+	}
+	return "tip"
+}
+
+func tabIndicator(d layouts.PageData, keys []string) string {
+	if len(keys) == 0 {
+		return ""
+	}
+	allOK := true
+	hasReqMissing := false
+	missingCount := 0
+	for _, k := range keys {
+		for _, st := range d.Integrations {
+			if st.Key != k {
+				continue
+			}
+			if !st.Configured {
+				allOK = false
+				missingCount++
+				if st.Required {
+					hasReqMissing = true
+				}
+			}
+		}
+	}
+	if allOK {
+		return " ✓"
+	}
+	if hasReqMissing {
+		return " ⚠"
+	}
+	if missingCount > 0 {
+		return " ●"
+	}
+	return ""
 }
 
 func anyStr(m map[string]any, k string) string {

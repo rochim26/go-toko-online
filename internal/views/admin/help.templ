@@ -1,0 +1,221 @@
+package admin
+
+import (
+	"github.com/tokoonline/app/internal/services/integrations"
+	"github.com/tokoonline/app/internal/views/layouts"
+)
+
+// integrationsStatus is a private alias so admin.templ can refer to integrations.Status
+// without importing the full package in template-generated Go code.
+type integrationsStatus = integrations.Status
+
+// statusBadgeFor renders a small badge showing whether an integration tab is configured.
+func statusBadgeFor(d layouts.PageData, key string) string {
+	for _, st := range d.Integrations {
+		if st.Key == key {
+			if st.Configured {
+				return "ok"
+			}
+			if st.Required {
+				return "req"
+			}
+			return "miss"
+		}
+	}
+	return ""
+}
+
+func tooltipFor(d layouts.PageData, keys ...string) string {
+	var msg string
+	for _, k := range keys {
+		for _, st := range d.Integrations {
+			if st.Key != k {
+				continue
+			}
+			if st.Configured {
+				msg += "✓ " + st.Name + ": sudah dikonfigurasi\n"
+			} else {
+				msg += "⚠ " + st.Name + ": butuh "
+				for i, m := range st.Missing {
+					if i > 0 {
+						msg += ", "
+					}
+					msg += m
+				}
+				msg += "\n"
+			}
+		}
+	}
+	return msg
+}
+
+// Render a single integration status row. Used inside settings tabs.
+templ IntegrationRow(st integrations.Status) {
+	<div class="int-card">
+		<div>
+			<h4>{ st.Name }
+				if st.Configured {
+					<span class="int-badge int-ok">✓ Connected</span>
+				} else if st.Required {
+					<span class="int-badge int-required-missing">⚠ Wajib diisi</span>
+				} else {
+					<span class="int-badge int-missing">⚠ Belum aktif</span>
+				}
+			</h4>
+			if !st.Configured && len(st.Missing) > 0 {
+				<div class="muted">Belum diisi:
+					for i, m := range st.Missing {
+						if i > 0 {
+							,
+						}
+						<strong>{ m }</strong>
+					}
+				</div>
+			}
+		</div>
+		<div style="text-align:right;font-size:.8rem">
+			if st.DashboardURL != "" {
+				<a href={ templ.SafeURL(st.DashboardURL) } target="_blank" rel="noopener">Buka Dashboard ↗</a><br/>
+			}
+			if st.HelpURL != "" {
+				<a href={ templ.SafeURL(st.HelpURL) } target="_blank" rel="noopener">Dokumentasi ↗</a>
+			}
+		</div>
+	</div>
+}
+
+// Help block templates (one per integration). Rendered above its form fields.
+
+templ HelpStore() {
+	<div class="help-block">
+		<h4>Cara mengisi identitas toko</h4>
+		<ol>
+			<li><strong>Nama Toko & Tagline</strong>: tampil di header, footer, judul tab browser, dan email transaksional.</li>
+			<li><strong>Nomor WhatsApp</strong>: ditampilkan sebagai tombol "Chat WA" di setiap halaman produk dan footer. Format <code>+628xxxxxx</code>.</li>
+			<li><strong>Origin Area ID & Postal Code</strong>: <em>wajib untuk hitung ongkir</em>. Cari kode area di tab <strong>Biteship</strong> setelah API key terisi, atau buka <a href="https://biteship.com/id/dashboard" target="_blank" rel="noopener">dashboard Biteship</a>.</li>
+			<li><strong>Logo & Favicon</strong>: upload langsung di bawah, sistem otomatis kompres. Copy URL hasil upload ke kolom Logo URL.</li>
+		</ol>
+	</div>
+}
+
+templ HelpSEO() {
+	<div class="help-block">
+		<h4>Optimasi SEO & Google AI Overview</h4>
+		<ol>
+			<li><strong>Title Pattern</strong>: gunakan <code>%s | Nama Toko</code>. Setiap halaman akan di-template dengan judul aslinya.</li>
+			<li><strong>Default Description</strong>: muncul di halaman yang tidak punya deskripsi sendiri (homepage, kategori kosong, dll.).</li>
+			<li><strong>Default OG Image</strong>: gambar 1200×630 px untuk preview sosial media.</li>
+			<li><strong>GSC Verification</strong>: dapatkan dari <a href="https://search.google.com/search-console" target="_blank" rel="noopener">Search Console</a> → Add Property → HTML tag method → copy isi <code>content</code>.</li>
+			<li><strong>AI Overview Optimized</strong>: aktifkan untuk menambah FAQ schema + heading hierarchy yang dioptimalkan untuk Google AI Overview.</li>
+		</ol>
+	</div>
+}
+
+templ HelpMarketing() {
+	<div class="help-block">
+		<h4>Setup Pixel, GA4, GTM, TikTok</h4>
+		<p><strong>Meta Pixel + Conversions API (CAPI):</strong></p>
+		<ol>
+			<li>Buka <a href="https://business.facebook.com/events_manager2" target="_blank" rel="noopener">Events Manager Facebook</a>.</li>
+			<li>Pilih atau buat Pixel. Copy <strong>Pixel ID</strong> (15-16 digit angka).</li>
+			<li>Klik "Settings" → cari "Conversions API" → "Generate access token". Copy ke kolom <strong>CAPI Token</strong>.</li>
+			<li>Untuk testing: di Events Manager, bagian "Test Events", copy kode test ke <strong>Test Event Code</strong>. Hapus saat production.</li>
+		</ol>
+		<p><strong>Google Analytics 4 (GA4 + Measurement Protocol):</strong></p>
+		<ol>
+			<li>Buka <a href="https://analytics.google.com/" target="_blank" rel="noopener">analytics.google.com</a>.</li>
+			<li>Admin → Data Streams → Web stream. Copy <strong>Measurement ID</strong> (format <code>G-XXXX</code>).</li>
+			<li>Di stream yang sama, scroll ke "Measurement Protocol API secrets" → Create. Copy <strong>API Secret</strong>.</li>
+		</ol>
+		<p><strong>Google Tag Manager (opsional, kalau pakai GTM containers):</strong> Container ID format <code>GTM-XXXX</code>.</p>
+		<p><strong>TikTok Pixel:</strong> Pixel ID dari <a href="https://ads.tiktok.com/i18n/events_manager" target="_blank" rel="noopener">TikTok Events Manager</a>.</p>
+		<p><strong>Google Ads:</strong> Conversion ID format <code>AW-XXXXX</code> + label dari Google Ads → Tools → Conversions.</p>
+		<p style="font-size:.85rem;color:#1e40af"><em>Tip: server-side CAPI dan GA4 MP otomatis aktif dengan event_id dedup yang sama dengan client pixel — Anda tidak perlu setup tambahan.</em></p>
+	</div>
+}
+
+templ HelpGMC() {
+	<div class="help-block">
+		<h4>Google Merchant Center Setup</h4>
+		<ol>
+			<li>Daftar di <a href="https://merchants.google.com/" target="_blank" rel="noopener">merchants.google.com</a> dengan email yang sama dengan GA4.</li>
+			<li>Verify domain via Search Console (gunakan kode di tab SEO).</li>
+			<li>Copy <strong>Merchant ID</strong> (15 digit) ke kolom di sini.</li>
+			<li>Di Merchant Center: Products → Feeds → Add Feed → "Scheduled fetch" → URL: <code>https://toko.mdt.biz.id/feeds/gmc.xml</code>. Frekuensi: harian.</li>
+			<li>Pastikan setiap produk sudah punya: GTIN/MPN/Brand, harga jelas, foto utama, deskripsi minimal 200 karakter, dan <code>gmc_enabled=TRUE</code> (default).</li>
+			<li>Centang <strong>Auto-skip OOS</strong> agar produk habis stok tidak masuk feed (mencegah disapproval).</li>
+		</ol>
+	</div>
+}
+
+templ HelpXendit() {
+	<div class="help-block">
+		<h4>Setup Xendit Payment Gateway</h4>
+		<ol>
+			<li>Daftar di <a href="https://dashboard.xendit.co/register" target="_blank" rel="noopener">Xendit dashboard</a> dan selesaikan KYC bisnis (PT/CV/Perorangan).</li>
+			<li>Settings → Developers → API Keys. Generate <strong>Secret Key</strong> dengan permission "Money-in" (Invoice). Format: <code>xnd_production_...</code> atau <code>xnd_development_...</code> untuk testing.</li>
+			<li>Public Key (opsional) untuk fitur tokenisasi kartu — saat ini tidak wajib.</li>
+			<li>Settings → Developers → Webhooks. Tambahkan endpoint:
+				<br/><code>https://toko.mdt.biz.id/webhooks/xendit</code>
+				<br/>Pilih event: <strong>Invoices Paid</strong>. Copy "Verification Token" ke kolom <strong>Webhook Token</strong>.</li>
+			<li>Klik tombol <strong>Test Connection</strong> di bawah untuk verifikasi key valid.</li>
+		</ol>
+	</div>
+}
+
+templ HelpBiteship() {
+	<div class="help-block">
+		<h4>Setup Biteship Shipping</h4>
+		<ol>
+			<li>Daftar di <a href="https://biteship.com/id/register" target="_blank" rel="noopener">biteship.com/id/register</a>. Dashboard → API Keys → Create.</li>
+			<li>Pilih <strong>Sandbox</strong> untuk test (gratis), <strong>Production</strong> untuk live. Copy ke <strong>API Key</strong>.</li>
+			<li>Daftar kurir: aktifkan kurir yang Anda support (jne, jnt, sicepat, anteraja, gojek, grab, dll.) di Biteship dashboard.</li>
+			<li>Origin Area: cari Area ID alamat gudang Anda lewat API <code>/v1/maps/areas</code> atau di dashboard Biteship → Settings → Locations. Pindahkan ke tab <strong>Toko</strong> kolom Origin Area ID.</li>
+			<li>Klik <strong>Test Connection</strong> di bawah untuk verifikasi API key.</li>
+		</ol>
+	</div>
+}
+
+templ HelpShipping() {
+	<div class="help-block">
+		<h4>Pengaturan Pengiriman</h4>
+		<ul>
+			<li><strong>Free Shipping Threshold</strong>: minimum nilai order untuk gratis ongkir. Set <code>0</code> untuk nonaktifkan.</li>
+			<li><strong>Flat Rate Fallback</strong>: tarif default jika Biteship tidak balas (sangat jarang). Set <code>0</code> untuk minta user retry.</li>
+		</ul>
+	</div>
+}
+
+templ HelpMailer() {
+	<div class="help-block">
+		<h4>Email Notification Setup</h4>
+		<p>Server ini sudah punya <strong>postfix + DKIM/SPF/DMARC</strong> yang sudah diset. Cukup isi:</p>
+		<ul>
+			<li><strong>From Email</strong>: alamat pengirim. Default <code>noreply@toko.mdt.biz.id</code>.</li>
+			<li><strong>From Name</strong>: nama pengirim yang tampil di inbox penerima.</li>
+		</ul>
+		<p>Kosongkan SMTP Host untuk pakai postfix lokal (default & recommended). Isi SMTP host hanya jika ingin pakai layanan eksternal seperti Mailgun/SendGrid/SMTP.com.</p>
+	</div>
+}
+
+templ HelpTax() {
+	<div class="help-block">
+		<h4>Pajak & Format Invoice</h4>
+		<ul>
+			<li><strong>PPN %</strong>: misal <code>11</code>. Set <code>0</code> jika non-PKP.</li>
+			<li><strong>Invoice Prefix</strong>: contoh <code>INV</code> akan jadi <code>INV-20260509-ABC123</code>.</li>
+			<li><strong>NPWP Toko</strong>: muncul di PO PDF reseller. Kosongkan jika non-PKP.</li>
+		</ul>
+	</div>
+}
+
+templ HelpReseller() {
+	<div class="help-block">
+		<h4>Pendaftaran Reseller</h4>
+		<ul>
+			<li><strong>Auto-approve</strong>: aktifkan kalau Anda mau langsung approve semua pendaftar tanpa review (TIDAK direkomendasikan untuk production).</li>
+			<li><strong>Wajib KTP / NPWP</strong>: centang untuk memaksa upload dokumen saat daftar.</li>
+			<li><strong>Min. Order Pertama</strong>: nilai minimum order pertama setelah approval (Rp). Set <code>0</code> untuk nonaktifkan.</li>
+		</ul>
+	</div>
+}

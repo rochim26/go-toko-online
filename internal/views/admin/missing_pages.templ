@@ -1,0 +1,264 @@
+package admin
+
+import (
+	"github.com/tokoonline/app/internal/httpx"
+	"github.com/tokoonline/app/internal/models"
+	"github.com/tokoonline/app/internal/services/integrations"
+	"github.com/tokoonline/app/internal/views/layouts"
+	"time"
+)
+
+// ─── Customers ─────────────────────────────────────
+
+type CustomerListItem struct {
+	ID         string
+	Email      string
+	FullName   string
+	Phone      string
+	Role       string
+	OrderCount int
+	TotalSpent float64
+	CreatedAt  time.Time
+}
+
+templ Customers(d layouts.PageData, items []CustomerListItem) {
+	@layouts.Admin(d, "customers") {
+		<h1 class="h1">Pelanggan</h1>
+		<p class="muted">Daftar customer dan reseller yang sudah pernah belanja atau daftar.</p>
+		<div class="card" style="padding:0">
+			<table>
+				<thead><tr><th>Nama</th><th>Email</th><th>Role</th><th>Order</th><th>Total Belanja</th><th>Daftar</th></tr></thead>
+				<tbody>
+					if len(items) == 0 {
+						<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--c-muted)">Belum ada pelanggan terdaftar.</td></tr>
+					}
+					for _, c := range items {
+						<tr>
+							<td>{ c.FullName }
+								if c.Phone != "" {
+									<br/><span class="muted" style="font-size:.8rem">{ c.Phone }</span>
+								}
+							</td>
+							<td>{ c.Email }</td>
+							<td><span class="badge">{ c.Role }</span></td>
+							<td>{ intStr(c.OrderCount) }</td>
+							<td>{ httpx.IDR(c.TotalSpent) }</td>
+							<td>{ httpx.DateID(c.CreatedAt) }</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	}
+}
+
+// ─── Pages CMS ──────────────────────────────────────
+
+templ Pages(d layouts.PageData, items []*models.Page) {
+	@layouts.Admin(d, "pages") {
+		<div class="flex between"><h1 class="h1">Halaman</h1></div>
+		<p class="muted">Halaman statis seperti Tentang Kami, FAQ, Syarat & Ketentuan, Kebijakan Privasi. Diakses publik via <code>/p/&lt;slug&gt;</code>.</p>
+		<form method="POST" action="/admin/pages" class="card">
+			<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+			<h3 class="h3">Tambah / Update Halaman (slug unik)</h3>
+			<div class="form-grid">
+				<div class="field"><label>Slug</label><input class="input" name="slug" pattern="[a-z0-9-]+" required placeholder="cara-belanja"/></div>
+				<div class="field"><label>Judul</label><input class="input" name="title" required/></div>
+			</div>
+			<div class="field"><label>Body (HTML diperbolehkan)</label><textarea class="input" name="body_html" rows="10" required></textarea></div>
+			<div class="form-grid">
+				<div class="field"><label>SEO Title</label><input class="input" name="seo_title"/></div>
+				<div class="field"><label>SEO Description</label><input class="input" name="seo_desc"/></div>
+			</div>
+			<label><input type="checkbox" name="is_published" checked/> Publikasikan</label>
+			<div style="margin-top:1rem"><button class="btn">Simpan</button></div>
+		</form>
+		<div class="card" style="padding:0;margin-top:1rem">
+			<table>
+				<thead><tr><th>Judul</th><th>Slug</th><th>Status</th><th>Diupdate</th><th></th></tr></thead>
+				<tbody>
+					for _, p := range items {
+						<tr>
+							<td>{ p.Title }</td>
+							<td><code>{ p.Slug }</code></td>
+							<td>
+								if p.IsPublished {
+									<span class="badge badge-success">Published</span>
+								} else {
+									<span class="badge">Draft</span>
+								}
+							</td>
+							<td>{ httpx.DateID(p.UpdatedAt) }</td>
+							<td>
+								<a class="btn btn-outline btn-sm" href={ templ.URL("/p/" + p.Slug) } target="_blank">Lihat</a>
+								<form method="POST" action={ templ.SafeURL("/admin/pages/" + p.ID.String() + "/delete") } style="display:inline" onsubmit="return confirm('Hapus halaman ini?')">
+									<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+									<button class="btn btn-outline btn-sm">Hapus</button>
+								</form>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	}
+}
+
+// ─── Redirects ──────────────────────────────────────
+
+type RedirectItem struct {
+	ID       string
+	From     string
+	To       string
+	Code     int
+	CreatedAt time.Time
+}
+
+templ Redirects(d layouts.PageData, items []RedirectItem) {
+	@layouts.Admin(d, "redirects") {
+		<h1 class="h1">Redirect 301/302</h1>
+		<p class="muted">Penting saat mengganti slug produk/halaman atau migrasi dari toko lama. Crawler Google akan ikut update setelah beberapa hari.</p>
+		<form method="POST" action="/admin/redirects" class="card">
+			<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+			<div class="form-grid">
+				<div class="field"><label>Dari (path)</label><input class="input" name="from_path" required placeholder="/p/produk-lama"/></div>
+				<div class="field"><label>Ke (path/URL)</label><input class="input" name="to_path" required placeholder="/p/produk-baru"/></div>
+				<div class="field"><label>Kode</label>
+					<select class="select" name="code">
+						<option value="301">301 (Permanent)</option>
+						<option value="302">302 (Temporary)</option>
+						<option value="307">307</option>
+						<option value="308">308</option>
+					</select>
+				</div>
+			</div>
+			<button class="btn">Tambah</button>
+		</form>
+		<div class="card" style="padding:0;margin-top:1rem">
+			<table>
+				<thead><tr><th>Dari</th><th>Ke</th><th>Kode</th><th>Dibuat</th><th></th></tr></thead>
+				<tbody>
+					if len(items) == 0 {
+						<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--c-muted)">Belum ada redirect.</td></tr>
+					}
+					for _, r := range items {
+						<tr>
+							<td><code>{ r.From }</code></td>
+							<td><code>{ r.To }</code></td>
+							<td>{ intStr(r.Code) }</td>
+							<td>{ httpx.DateID(r.CreatedAt) }</td>
+							<td>
+								<form method="POST" action={ templ.SafeURL("/admin/redirects/" + r.ID + "/delete") } style="display:inline">
+									<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+									<button class="btn btn-outline btn-sm">Hapus</button>
+								</form>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	}
+}
+
+// ─── GMC Feed Status ─────────────────────────────────
+
+type FeedStats struct {
+	TotalProducts   int
+	ActiveProducts  int
+	GMCEnabled      int
+	OutOfStock      int
+	MissingGTIN     int
+	MissingImage    int
+}
+
+templ FeedStatus(d layouts.PageData, baseURL string, stats FeedStats, gmc integrations.Status) {
+	@layouts.Admin(d, "feeds") {
+		<h1 class="h1">Google Merchant Center Feed</h1>
+		<p class="muted">Feed XML otomatis di-generate dari produk B2C aktif yang centang "Sertakan di feed GMC".</p>
+		<div class="card">
+			<h3 class="h3">URL Feed</h3>
+			<input class="input" value={ baseURL + "/feeds/gmc.xml" } readonly onclick="this.select()"/>
+			<p class="muted" style="font-size:.85rem;margin-top:.5rem">
+				Submit URL ini di Merchant Center → Products → Feeds → "Scheduled fetch" → daily.
+			</p>
+			<a class="btn btn-outline btn-sm" href="/feeds/gmc.xml" target="_blank">Buka Feed</a>
+		</div>
+		<div class="grid grid-3" style="margin-top:1rem">
+			<div class="card"><div class="muted">Total Produk Aktif</div><div style="font-size:1.5rem;font-weight:700">{ intStr(stats.ActiveProducts) }</div></div>
+			<div class="card"><div class="muted">Tampil di GMC Feed</div><div style="font-size:1.5rem;font-weight:700">{ intStr(stats.GMCEnabled) }</div></div>
+			<div class="card"><div class="muted">Stok Habis</div><div style="font-size:1.5rem;font-weight:700">{ intStr(stats.OutOfStock) }</div></div>
+		</div>
+		<div class="grid grid-2" style="margin-top:1rem">
+			<div class="card"><div class="muted">Tanpa GTIN/MPN</div><div style="font-size:1.5rem;font-weight:700">{ intStr(stats.MissingGTIN) }</div><p class="muted" style="font-size:.8rem">Tambah GTIN/MPN/Brand di edit produk untuk hindari disapproval.</p></div>
+			<div class="card"><div class="muted">Tanpa Foto</div><div style="font-size:1.5rem;font-weight:700">{ intStr(stats.MissingImage) }</div><p class="muted" style="font-size:.8rem">GMC wajib minimal 1 foto utama.</p></div>
+		</div>
+		<div class="card" style="margin-top:1rem">
+			<h3 class="h3">Status Konfigurasi</h3>
+			@IntegrationRow(gmc)
+		</div>
+	}
+}
+
+// ─── Sitemap Status ──────────────────────────────────
+
+type SitemapStats struct {
+	BaseURL    string
+	URLs       int
+	Products   int
+	Categories int
+	Pages      int
+	Posts      int
+}
+
+templ SitemapStatus(d layouts.PageData, stats SitemapStats) {
+	@layouts.Admin(d, "sitemap") {
+		<h1 class="h1">Sitemap XML</h1>
+		<p class="muted">Sitemap di-generate otomatis dari semua halaman, kategori, produk, dan blog post yang published.</p>
+		<div class="card">
+			<h3 class="h3">URL Sitemap</h3>
+			<input class="input" value={ stats.BaseURL + "/sitemap.xml" } readonly onclick="this.select()"/>
+			<p class="muted" style="font-size:.85rem;margin-top:.5rem">
+				Sudah otomatis tercantum di <code>robots.txt</code>. Submit di <a href="https://search.google.com/search-console" target="_blank" rel="noopener">Search Console</a> → Sitemaps.
+			</p>
+			<a class="btn btn-outline btn-sm" href="/sitemap.xml" target="_blank">Buka Sitemap</a>
+			<a class="btn btn-outline btn-sm" href="/robots.txt" target="_blank">Buka robots.txt</a>
+		</div>
+		<div class="grid grid-4" style="margin-top:1rem">
+			<div class="card"><div class="muted">Total URL</div><div style="font-size:1.5rem;font-weight:700">{ intStr(stats.URLs) }</div></div>
+			<div class="card"><div class="muted">Produk</div><div style="font-size:1.5rem;font-weight:700">{ intStr(stats.Products) }</div></div>
+			<div class="card"><div class="muted">Kategori</div><div style="font-size:1.5rem;font-weight:700">{ intStr(stats.Categories) }</div></div>
+			<div class="card"><div class="muted">Halaman + Blog</div><div style="font-size:1.5rem;font-weight:700">{ intStr(stats.Pages + stats.Posts) }</div></div>
+		</div>
+	}
+}
+
+// ─── Tour replay page ────────────────────────────────
+
+templ TourReplay(d layouts.PageData) {
+	@layouts.Admin(d, "tour") {
+		<h1 class="h1">Tutorial Interaktif</h1>
+		<p>Klik tombol di bawah untuk menjalankan ulang tour pengenalan fitur.</p>
+		<form method="POST" action="/admin/tour/start" style="display:inline">
+			<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+			<button class="btn btn-accent">Mulai Tour</button>
+		</form>
+		<a class="btn btn-outline" href="/admin">Batal</a>
+		<h2 class="h2">Panduan Setup Lengkap</h2>
+		<ol style="line-height:1.8;font-size:.95rem">
+			<li><strong>Identitas Toko</strong> → <a href="/admin/settings?tab=store">/admin/settings</a> tab Toko: nama, WA, alamat, origin area Biteship.</li>
+			<li><strong>Pembayaran</strong> → tab Xendit: secret key + webhook token.</li>
+			<li><strong>Pengiriman</strong> → tab Biteship: API key + daftar kurir.</li>
+			<li><strong>Tracking & Analytics</strong> → tab Pixel & Analytics: Meta Pixel + CAPI, GA4 + MP, GTM, TikTok.</li>
+			<li><strong>Google Merchant Center</strong> → tab Merchant Center: merchant ID + submit feed XML.</li>
+			<li><strong>Email</strong> → tab Email: From email + nama (postfix lokal sudah siap).</li>
+			<li><strong>Pajak & Faktur</strong> → tab Pajak: PPN, format invoice.</li>
+			<li><strong>Reseller settings</strong> → tab Reseller: kebijakan pendaftaran.</li>
+			<li><strong>Tier Reseller</strong> → <a href="/admin/tiers">/admin/tiers</a>: setup Bronze/Silver/Gold (sudah default).</li>
+			<li><strong>Kategori & Produk</strong> → <a href="/admin/categories">/admin/categories</a> dulu, lalu <a href="/admin/products">/admin/products</a>.</li>
+			<li><strong>Halaman statis</strong> → <a href="/admin/pages">/admin/pages</a>: edit FAQ, Tentang, Privacy.</li>
+			<li><strong>Blog</strong> → <a href="/admin/blog">/admin/blog</a>: tulis artikel SEO untuk topical authority + AI Overview.</li>
+			<li><strong>SEO Verification</strong> → tab SEO: GSC verification code.</li>
+		</ol>
+	}
+}

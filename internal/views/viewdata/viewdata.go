@@ -1,6 +1,9 @@
 package viewdata
 
-import "github.com/tokoonline/app/internal/services/settings"
+import (
+	"github.com/tokoonline/app/internal/services/integrations"
+	"github.com/tokoonline/app/internal/services/settings"
+)
 
 type PageData struct {
 	Title       string
@@ -23,4 +26,7 @@ type PageData struct {
 	Store       settings.StoreInfo
 	SEO         settings.SEOGlobal
 	Marketing   settings.Marketing
+	// Admin-only data
+	OnboardingDone bool
+	Integrations   []integrations.Status
 }
