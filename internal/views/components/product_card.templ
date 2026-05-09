@@ -1,0 +1,33 @@
+package components
+
+import (
+	"github.com/tokoonline/app/internal/httpx"
+	"github.com/tokoonline/app/internal/models"
+)
+
+templ ProductCard(p *models.Product) {
+	<a class="prod" href={ templ.URL("/p/" + p.Slug) }>
+		<div class="prod-img">
+			if p.PrimaryImage != nil && *p.PrimaryImage != "" {
+				<img src={ *p.PrimaryImage } alt={ p.Name } loading="lazy"/>
+			} else {
+				<div style="color:var(--c-muted);font-size:.85rem">No image</div>
+			}
+		</div>
+		<div class="prod-body">
+			<div class="prod-title">{ p.Name }</div>
+			<div class="prod-price">
+				if p.MinPrice == p.MaxPrice {
+					{ httpx.IDR(p.MinPrice) }
+				} else {
+					{ httpx.IDR(p.MinPrice) } – { httpx.IDR(p.MaxPrice) }
+				}
+			</div>
+			if p.OnHand <= 0 {
+				<div class="prod-meta"><span class="badge badge-danger">Stok Habis</span></div>
+			} else if p.BrandName != nil {
+				<div class="prod-meta">{ *p.BrandName }</div>
+			}
+		</div>
+	</a>
+}

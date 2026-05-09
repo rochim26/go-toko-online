@@ -1,0 +1,74 @@
+package public
+
+import (
+	"github.com/tokoonline/app/internal/models"
+	"github.com/tokoonline/app/internal/views/components"
+	"github.com/tokoonline/app/internal/views/layouts"
+)
+
+templ Catalog(d layouts.PageData, category *models.Category, products []*models.Product, total int, q string) {
+	@layouts.Public(d) {
+		<nav class="breadcrumb">
+			<a href="/">Beranda</a> /
+			if category != nil {
+				<a href="/c/semua">Katalog</a> / <span>{ category.Name }</span>
+			} else if q != "" {
+				<a href="/c/semua">Katalog</a> / <span>Cari: { q }</span>
+			} else {
+				<span>Katalog</span>
+			}
+		</nav>
+		<h1 class="h1">
+			if category != nil {
+				{ category.Name }
+			} else if q != "" {
+				Hasil Pencarian: "{ q }"
+			} else {
+				Semua Produk
+			}
+		</h1>
+		if category != nil && category.Description != nil && *category.Description != "" {
+			<p class="muted">{ *category.Description }</p>
+		}
+		<div class="muted" style="margin-bottom:1rem">{ totalLabel(total) }</div>
+		if len(products) == 0 {
+			<div class="card">Belum ada produk yang cocok. Coba kata kunci lain.</div>
+		} else {
+			<div class="grid grid-4">
+				for _, p := range products {
+					@components.ProductCard(p)
+				}
+			</div>
+		}
+	}
+}
+
+func totalLabel(n int) string {
+	if n == 0 {
+		return ""
+	}
+	return "Menampilkan " + intToString(n) + " produk"
+}
+
+func intToString(n int) string {
+	if n == 0 {
+		return "0"
+	}
+	neg := false
+	if n < 0 {
+		neg = true
+		n = -n
+	}
+	var b [20]byte
+	i := len(b)
+	for n > 0 {
+		i--
+		b[i] = byte('0' + n%10)
+		n /= 10
+	}
+	if neg {
+		i--
+		b[i] = '-'
+	}
+	return string(b[i:])
+}

@@ -1,0 +1,26 @@
+package layouts
+
+import "github.com/tokoonline/app/internal/views/components"
+
+templ Reseller(d PageData, active string) {
+	@Base(d) {
+		<div class="layout">
+			<aside class="sidebar">
+				<div style="padding:.75rem 1.25rem;font-weight:700;color:#fff">Reseller · { d.Store.Name }</div>
+				<a href="/reseller" class={ activeClass(active, "home") }>Dashboard</a>
+				<a href="/reseller/catalog" class={ activeClass(active, "catalog") }>Katalog</a>
+				<a href="/reseller/bulk" class={ activeClass(active, "bulk") }>Bulk Order</a>
+				<a href="/reseller/cart" class={ activeClass(active, "cart") }>Keranjang</a>
+				<a href="/reseller/orders" class={ activeClass(active, "orders") }>Pesanan</a>
+				<a href="/reseller/statements" class={ activeClass(active, "statements") }>Rekap & Tagihan</a>
+				<a href="/reseller/profile" class={ activeClass(active, "profile") }>Profil</a>
+				<a href="/account/password">Ganti Password</a>
+				<a href="/logout">Keluar</a>
+			</aside>
+			<main class="main">
+				@components.Header(d)
+				{ children... }
+			</main>
+		</div>
+	}
+}

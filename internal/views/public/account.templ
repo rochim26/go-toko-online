@@ -1,0 +1,44 @@
+package public
+
+import (
+	"github.com/tokoonline/app/internal/httpx"
+	"github.com/tokoonline/app/internal/models"
+	"github.com/tokoonline/app/internal/views/layouts"
+)
+
+templ Account(d layouts.PageData) {
+	@layouts.Public(d) {
+		<h1 class="h1">Akun Saya</h1>
+		<div class="grid grid-3">
+			<a class="card" href="/account/orders"><h3 class="h3">Pesanan</h3><p class="muted">Lacak pesanan & status pembayaran.</p></a>
+			<a class="card" href="/account/password"><h3 class="h3">Ganti Password</h3><p class="muted">Ubah password akun secara aman.</p></a>
+			<a class="card" href="/logout"><h3 class="h3">Keluar</h3><p class="muted">Akhiri sesi & kembali ke beranda.</p></a>
+		</div>
+	}
+}
+
+templ OrderHistory(d layouts.PageData, orders []*models.Order) {
+	@layouts.Public(d) {
+		<h1 class="h1">Pesanan Saya</h1>
+		if len(orders) == 0 {
+			<div class="card"><p>Anda belum punya pesanan.</p><a class="btn" href="/c/semua">Mulai Belanja</a></div>
+		} else {
+			<div class="card">
+				<table>
+					<thead><tr><th>Kode</th><th>Tanggal</th><th>Status</th><th>Pembayaran</th><th style="text-align:right">Total</th></tr></thead>
+					<tbody>
+						for _, o := range orders {
+							<tr>
+								<td><a href={ templ.URL("/account/orders/" + o.Code) }>{ o.Code }</a></td>
+								<td>{ httpx.DateID(o.CreatedAt) }</td>
+								<td><span class={ statusBadge(o.Status) }>{ statusLabel(o.Status) }</span></td>
+								<td><span class={ paymentBadge(o.PaymentStatus) }>{ paymentLabel(o.PaymentStatus) }</span></td>
+								<td style="text-align:right">{ httpx.IDR(o.GrandTotal) }</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+	}
+}

@@ -1,0 +1,14 @@
+{
+  "name": "Toko MDT",
+  "short_name": "Toko MDT",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0f172a",
+  "lang": "id",
+  "icons": [
+    {"src": "/static/img/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "/static/img/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}

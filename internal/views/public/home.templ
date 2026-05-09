@@ -1,0 +1,36 @@
+package public
+
+import (
+	"github.com/tokoonline/app/internal/models"
+	"github.com/tokoonline/app/internal/views/components"
+	"github.com/tokoonline/app/internal/views/layouts"
+)
+
+templ Home(d layouts.PageData, products []*models.Product, categories []*models.Category) {
+	@layouts.Public(d) {
+		<section class="hero">
+			<h1>{ d.Store.Name }</h1>
+			<p>{ d.Store.Tagline }</p>
+			<a class="btn" href="/c/semua">Lihat Semua Produk</a>
+		</section>
+		if len(categories) > 0 {
+			<h2 class="h2">Kategori</h2>
+			<div class="grid grid-4">
+				for _, c := range categories {
+					<a class="card" href={ templ.URL("/c/" + c.Slug) }>
+						<div style="font-weight:600">{ c.Name }</div>
+						if c.Description != nil {
+							<div class="muted" style="font-size:.85rem;margin-top:.25rem">{ *c.Description }</div>
+						}
+					</a>
+				}
+			</div>
+		}
+		<h2 class="h2">Produk Pilihan</h2>
+		<div class="grid grid-4">
+			for _, p := range products {
+				@components.ProductCard(p)
+			}
+		</div>
+	}
+}

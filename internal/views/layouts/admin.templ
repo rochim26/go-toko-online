@@ -1,0 +1,42 @@
+package layouts
+
+templ Admin(d PageData, active string) {
+	@Base(d) {
+		<div class="layout">
+			<aside class="sidebar">
+				<div style="padding:.75rem 1.25rem;font-weight:700;color:#fff">Admin · { d.Store.Name }</div>
+				<h3>Toko</h3>
+				<a href="/admin" class={ activeClass(active, "dashboard") }>Dashboard</a>
+				<a href="/admin/orders" class={ activeClass(active, "orders") }>Pesanan</a>
+				<a href="/admin/products" class={ activeClass(active, "products") }>Produk</a>
+				<a href="/admin/categories" class={ activeClass(active, "categories") }>Kategori</a>
+				<a href="/admin/customers" class={ activeClass(active, "customers") }>Pelanggan</a>
+				<a href="/admin/vouchers" class={ activeClass(active, "vouchers") }>Voucher</a>
+				<h3>Reseller</h3>
+				<a href="/admin/resellers" class={ activeClass(active, "resellers") }>Daftar Reseller</a>
+				<a href="/admin/tiers" class={ activeClass(active, "tiers") }>Tier</a>
+				<h3>Konten</h3>
+				<a href="/admin/pages" class={ activeClass(active, "pages") }>Halaman</a>
+				<a href="/admin/blog" class={ activeClass(active, "blog") }>Blog</a>
+				<a href="/admin/redirects" class={ activeClass(active, "redirects") }>Redirect</a>
+				<h3>Marketing</h3>
+				<a href="/admin/feeds" class={ activeClass(active, "feeds") }>GMC Feed</a>
+				<a href="/admin/sitemap" class={ activeClass(active, "sitemap") }>Sitemap</a>
+				<h3>Sistem</h3>
+				<a href="/admin/settings" class={ activeClass(active, "settings") }>Pengaturan</a>
+				<a href="/admin/password">Ganti Password</a>
+				<a href="/logout">Keluar</a>
+			</aside>
+			<main class="main">
+				{ children... }
+			</main>
+		</div>
+	}
+}
+
+func activeClass(cur, key string) string {
+	if cur == key {
+		return "active"
+	}
+	return ""
+}

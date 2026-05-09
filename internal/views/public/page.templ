@@ -1,0 +1,49 @@
+package public
+
+import (
+	"github.com/tokoonline/app/internal/models"
+	"github.com/tokoonline/app/internal/views/layouts"
+)
+
+templ ContentPage(d layouts.PageData, p *models.Page) {
+	@layouts.Public(d) {
+		<h1 class="h1">{ p.Title }</h1>
+		<div class="card">
+			@templ.Raw(p.BodyHTML)
+		</div>
+	}
+}
+
+templ BlogIndex(d layouts.PageData, posts []*models.BlogPost) {
+	@layouts.Public(d) {
+		<h1 class="h1">Blog</h1>
+		if len(posts) == 0 {
+			<p>Belum ada artikel.</p>
+		} else {
+			<div class="grid grid-3">
+				for _, p := range posts {
+					<a class="card" href={ templ.URL("/blog/" + p.Slug) }>
+						<div style="font-weight:600">{ p.Title }</div>
+						if p.Excerpt != nil {
+							<p class="muted" style="font-size:.9rem">{ *p.Excerpt }</p>
+						}
+					</a>
+				}
+			</div>
+		}
+	}
+}
+
+templ BlogPost(d layouts.PageData, p *models.BlogPost) {
+	@layouts.Public(d) {
+		<article class="card" style="max-width:820px;margin:0 auto">
+			<h1 class="h1">{ p.Title }</h1>
+			if p.Author != nil {
+				<div class="muted">Oleh { *p.Author }</div>
+			}
+			<div style="margin-top:1rem">
+				@templ.Raw(p.BodyHTML)
+			</div>
+		</article>
+	}
+}

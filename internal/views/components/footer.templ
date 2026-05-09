@@ -1,0 +1,46 @@
+package components
+
+import "github.com/tokoonline/app/internal/views/viewdata"
+
+templ Footer(d viewdata.PageData) {
+	<footer class="footer">
+		<div class="container grid grid-4">
+			<div>
+				<h4>{ d.Store.Name }</h4>
+				<p style="font-size:.85rem;line-height:1.5">{ d.Store.Tagline }</p>
+				if d.Store.Address != "" {
+					<p style="font-size:.85rem">{ d.Store.Address }</p>
+				}
+			</div>
+			<div>
+				<h4>Belanja</h4>
+				<a href="/c/semua">Semua Produk</a><br/>
+				<a href="/cart">Keranjang</a><br/>
+				<a href="/account">Akun Saya</a><br/>
+				<a href="/account/orders">Status Pesanan</a><br/>
+			</div>
+			<div>
+				<h4>Reseller</h4>
+				<a href="/reseller/login">Login Reseller</a><br/>
+				<a href="/reseller/register">Daftar Reseller</a><br/>
+			</div>
+			<div>
+				<h4>Bantuan</h4>
+				<a href="/p/faq">FAQ</a><br/>
+				<a href="/p/tentang-kami">Tentang Kami</a><br/>
+				<a href="/p/kebijakan-privasi">Kebijakan Privasi</a><br/>
+				<a href="/p/syarat-ketentuan">Syarat & Ketentuan</a><br/>
+				if d.Store.WANumber != "" {
+					<a href={ templ.URL("https://wa.me/" + onlyDigits(d.Store.WANumber)) } target="_blank" rel="noopener">WhatsApp</a>
+				}
+			</div>
+		</div>
+		<div class="container footer-bottom">
+			© { yearStr() } { d.Store.Name }. Hak cipta dilindungi.
+		</div>
+	</footer>
+}
+
+func yearStr() string {
+	return "2026"
+}

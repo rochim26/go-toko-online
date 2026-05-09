@@ -1,0 +1,14 @@
+/bin/
+/tmp/
+/dist/
+*.log
+.env
+.env.local
+.env.production
+static/uploads/*
+!static/uploads/.gitkeep
+.DS_Store
+node_modules/
+*.local
+go.work
+go.work.sum

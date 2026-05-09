@@ -1,0 +1,145 @@
+package public
+
+import (
+	"github.com/tokoonline/app/internal/httpx"
+	"github.com/tokoonline/app/internal/models"
+	"github.com/tokoonline/app/internal/views/layouts"
+)
+
+type CheckoutData struct {
+	Cart     *models.Cart
+	Subtotal float64
+	Weight   int
+	Email    string
+	Name     string
+	Phone    string
+	Channel  string // b2c | b2b
+	IsTOP    bool
+	TOPDays  int
+}
+
+templ Checkout(d layouts.PageData, cd CheckoutData) {
+	@layouts.Public(d) {
+		<h1 class="h1">Checkout</h1>
+		if len(cd.Cart.Items) == 0 {
+			<p>Keranjang kosong. <a href="/c/semua">Belanja dulu</a>.</p>
+		} else {
+			<form hx-post="/checkout" hx-swap="none" hx-disable-during-request="true">
+				<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+				<div class="grid" style="grid-template-columns:1fr 360px;gap:1.5rem">
+					<div>
+						<div class="card">
+							<h3 class="h3">Kontak</h3>
+							<div class="form-grid">
+								<div class="field">
+									<label>Email</label>
+									<input class="input" type="email" name="email" value={ cd.Email } required/>
+								</div>
+								<div class="field">
+									<label>Nama Lengkap</label>
+									<input class="input" name="name" value={ cd.Name } required/>
+								</div>
+							</div>
+							<div class="field">
+								<label>Nomor HP</label>
+								<input class="input" name="phone" value={ cd.Phone } required/>
+							</div>
+						</div>
+						<div class="card" style="margin-top:1rem">
+							<h3 class="h3">Alamat Pengiriman</h3>
+							<div class="field">
+								<label>Cari Kecamatan/Kota</label>
+								<input class="input" id="area-q" placeholder="Ketik nama kecamatan, kota..." hx-get="/api/shipping/areas" hx-trigger="keyup changed delay:400ms" hx-target="#area-results" hx-include="this" name="q"/>
+								<div id="area-results" style="background:#fff;border:1px solid var(--c-line);border-radius:.5rem;margin-top:.25rem;max-height:240px;overflow:auto"></div>
+								<input type="hidden" name="ship_area_id" id="ship_area_id" required/>
+								<input type="hidden" name="ship_province" id="ship_province"/>
+								<input type="hidden" name="ship_city" id="ship_city"/>
+								<input type="hidden" name="ship_district" id="ship_district"/>
+							</div>
+							<div class="field">
+								<label>Kode Pos</label>
+								<input class="input" name="ship_postal_code" id="ship_postal_code" required/>
+							</div>
+							<div class="field">
+								<label>Alamat lengkap</label>
+								<textarea class="input" name="ship_address" rows="3" required></textarea>
+							</div>
+						</div>
+						<div class="card" style="margin-top:1rem">
+							<h3 class="h3">Kurir</h3>
+							<button class="btn btn-outline btn-sm" type="button" hx-get="/api/shipping/rates" hx-include="[name='ship_area_id'],[name='ship_postal_code']" hx-target="#rates" hx-vals={ `js:{weight:` + intToString(cd.Weight) + `}` }>Cek Ongkir</button>
+							<div id="rates" style="margin-top:.5rem"></div>
+						</div>
+						if cd.Channel == "b2b" {
+							<div class="card" style="margin-top:1rem">
+								<h3 class="h3">Metode Pembayaran</h3>
+								<label style="display:block;margin-bottom:.5rem"><input type="radio" name="payment_term" value="prepaid" checked/> Bayar Sekarang (Xendit)</label>
+								if cd.IsTOP {
+									<label style="display:block"><input type="radio" name="payment_term" value="top"/> Bayar Tempo (TOP { intToString(cd.TOPDays) } hari) — generate PO</label>
+								}
+							</div>
+						} else {
+							<input type="hidden" name="payment_term" value="prepaid"/>
+						}
+						<div class="card" style="margin-top:1rem">
+							<h3 class="h3">Catatan (opsional)</h3>
+							<textarea class="input" name="notes" rows="2"></textarea>
+						</div>
+					</div>
+					<aside class="summary">
+						<h3 class="h3">Ringkasan</h3>
+						for _, it := range cd.Cart.Items {
+							<div class="sum-row" style="font-size:.85rem">
+								<span>{ it.ProductName } × { intToString(it.Qty) }</span>
+								<span>{ httpx.IDR(it.UnitPrice * float64(it.Qty)) }</span>
+							</div>
+						}
+						<div class="sum-row"><span>Subtotal</span><span>{ httpx.IDR(cd.Subtotal) }</span></div>
+						<div class="sum-row"><span>Ongkos Kirim</span><span id="shipping-cell">-</span></div>
+						<input type="hidden" name="shipping_total" id="shipping_total" value="0"/>
+						<input type="hidden" name="courier_code" id="courier_code"/>
+						<input type="hidden" name="courier_service" id="courier_service"/>
+						<div class="sum-row sum-grand"><span>Total</span><span id="grand-cell">{ httpx.IDR(cd.Subtotal) }</span></div>
+						<button class="btn btn-accent btn-block" type="submit" style="margin-top:1rem">Bayar Sekarang</button>
+						<p class="muted" style="font-size:.75rem;margin-top:.75rem">Dengan menekan tombol di atas, Anda menyetujui <a href="/p/syarat-ketentuan">Syarat & Ketentuan</a>.</p>
+					</aside>
+				</div>
+			</form>
+			<script>
+			(function(){
+				const subtotal = { JSStr(cd.Subtotal) };
+				document.body.addEventListener('click',(e)=>{
+					if(e.target.matches('[data-area]')){
+						const a = e.target.dataset;
+						document.getElementById('ship_area_id').value=a.area;
+						document.getElementById('ship_province').value=a.province;
+						document.getElementById('ship_city').value=a.city;
+						document.getElementById('ship_district').value=a.district;
+						if(a.postal){document.getElementById('ship_postal_code').value=a.postal}
+						document.getElementById('area-q').value=a.label;
+						document.getElementById('area-results').innerHTML='';
+					}
+					if(e.target.matches('[data-rate]')){
+						const a=e.target.dataset;
+						document.getElementById('shipping_total').value=a.price;
+						document.getElementById('courier_code').value=a.code;
+						document.getElementById('courier_service').value=a.service;
+						document.getElementById('shipping-cell').textContent='Rp '+Number(a.price).toLocaleString('id-ID');
+						document.getElementById('grand-cell').textContent='Rp '+Number(subtotal+parseFloat(a.price)).toLocaleString('id-ID');
+					}
+				});
+				document.body.addEventListener('htmx:afterRequest',(e)=>{
+					if(e.detail.elt.matches('form')&&e.detail.successful){
+						try{ const r=JSON.parse(e.detail.xhr.responseText); if(r.redirect){location.href=r.redirect;} }catch{}
+					}
+				});
+			})();
+			</script>
+		}
+	}
+}
+
+func JSStr(v float64) string {
+	intPart := int(v)
+	return intToString(intPart)
+}

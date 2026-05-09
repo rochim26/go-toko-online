@@ -1,0 +1,174 @@
+package public
+
+import (
+	"github.com/tokoonline/app/internal/httpx"
+	"github.com/tokoonline/app/internal/models"
+	"github.com/tokoonline/app/internal/views/layouts"
+)
+
+templ Product(d layouts.PageData, p *models.Product, variants []*models.Variant, images []*models.ProductImage, defaultPrice float64) {
+	@layouts.Public(d) {
+		<nav class="breadcrumb">
+			<a href="/">Beranda</a> /
+			if p.CategorySlug != nil {
+				<a href={ templ.URL("/c/" + *p.CategorySlug) }>{ deref(p.CategoryName) }</a> /
+			}
+			<span>{ p.Name }</span>
+		</nav>
+		<div class="grid grid-2">
+			<div>
+				if len(images) > 0 {
+					<img src={ images[0].URL } alt={ p.Name } style="width:100%;border-radius:.75rem;border:1px solid var(--c-line);aspect-ratio:1/1;object-fit:cover"/>
+					if len(images) > 1 {
+						<div class="grid grid-4" style="margin-top:.5rem">
+							for _, im := range images {
+								<img src={ im.URL } alt={ p.Name } style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:.5rem;border:1px solid var(--c-line)"/>
+							}
+						</div>
+					}
+				} else {
+					<div style="aspect-ratio:1/1;background:var(--c-soft);border-radius:.75rem"></div>
+				}
+			</div>
+			<div>
+				<h1 class="h1">{ p.Name }</h1>
+				if p.BrandName != nil {
+					<div class="muted" style="margin-bottom:.5rem">Brand: <strong>{ *p.BrandName }</strong></div>
+				}
+				<div style="font-size:1.75rem;font-weight:800;margin:1rem 0">{ httpx.IDR(defaultPrice) }</div>
+				if p.ShortDesc != nil && *p.ShortDesc != "" {
+					<p>{ *p.ShortDesc }</p>
+				}
+				<form hx-post="/api/cart/add" hx-swap="none" hx-trigger="submit" hx-on::after-request="if(event.detail.successful) htmx.trigger('body','cart:updated',{count:JSON.parse(event.detail.xhr.responseText).count})">
+					<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+					if len(variants) > 1 {
+						<div class="field">
+							<label>Pilih Varian</label>
+							<select class="select" name="variant_id" required>
+								for _, v := range variants {
+									<option value={ v.ID.String() }>{ variantLabel(v) } - { httpx.IDR(v.BasePrice) }</option>
+								}
+							</select>
+						</div>
+					} else if len(variants) == 1 {
+						<input type="hidden" name="variant_id" value={ variants[0].ID.String() }/>
+					}
+					<div class="flex gap" style="margin-top:1rem">
+						<div class="qty">
+							<button type="button" onclick="this.nextElementSibling.value=Math.max(1,(parseInt(this.nextElementSibling.value)||1)-1)">-</button>
+							<input type="number" name="qty" value="1" min="1" max="999"/>
+							<button type="button" onclick="this.previousElementSibling.value=(parseInt(this.previousElementSibling.value)||1)+1">+</button>
+						</div>
+						<button class="btn btn-accent" type="submit">+ Keranjang</button>
+						<a class="btn btn-outline" href="/checkout">Beli Sekarang</a>
+					</div>
+				</form>
+				if d.Store.WANumber != "" {
+					<a class="btn btn-outline" style="margin-top:1rem" target="_blank" rel="noopener" href={ waLink(d.Store.WANumber, p.Name, d.BaseURL+"/p/"+p.Slug) }>
+						Tanya via WhatsApp
+					</a>
+				}
+				<hr style="margin:1.5rem 0;border:none;border-top:1px solid var(--c-line)"/>
+				<div style="font-size:.9rem">
+					<div>SKU: <strong>{ defaultSKU(variants) }</strong></div>
+					<div>Stok: <strong>{ stockLabel(p.OnHand) }</strong></div>
+					<div>Berat: <strong>{ weightLabel(p.WeightGrams) }</strong></div>
+				</div>
+			</div>
+		</div>
+		if p.Description != nil && *p.Description != "" {
+			<h2 class="h2">Deskripsi Produk</h2>
+			<div class="card">
+				@templ.Raw(*p.Description)
+			</div>
+		}
+		if len(p.FAQs) > 0 {
+			<h2 class="h2">Pertanyaan Umum</h2>
+			<div class="card">
+				for _, f := range p.FAQs {
+					<details style="margin-bottom:.75rem">
+						<summary style="font-weight:600;cursor:pointer">{ f.Q }</summary>
+						<div style="margin-top:.5rem">{ f.A }</div>
+					</details>
+				}
+			</div>
+		}
+	}
+}
+
+func deref(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
+
+func defaultSKU(vs []*models.Variant) string {
+	for _, v := range vs {
+		if v.IsDefault {
+			return v.SKU
+		}
+	}
+	if len(vs) > 0 {
+		return vs[0].SKU
+	}
+	return "-"
+}
+
+func stockLabel(n int) string {
+	if n <= 0 {
+		return "Habis"
+	}
+	return intToString(n)
+}
+
+func weightLabel(g int) string {
+	if g >= 1000 {
+		return floatStr(float64(g)/1000.0) + " kg"
+	}
+	return intToString(g) + " g"
+}
+
+func floatStr(v float64) string {
+	intPart := int(v)
+	frac := int((v - float64(intPart)) * 100)
+	if frac == 0 {
+		return intToString(intPart)
+	}
+	return intToString(intPart) + "." + intToString(frac)
+}
+
+func variantLabel(v *models.Variant) string {
+	if v.Name != nil && *v.Name != "" {
+		return *v.Name
+	}
+	return v.SKU
+}
+
+func waLink(num, name, url string) templ.SafeURL {
+	digits := ""
+	for i := 0; i < len(num); i++ {
+		c := num[i]
+		if c >= '0' && c <= '9' {
+			digits += string(c)
+		}
+	}
+	msg := "Halo, saya tertarik dengan produk: " + name + "\n" + url
+	encoded := ""
+	for i := 0; i < len(msg); i++ {
+		c := msg[i]
+		switch {
+		case c == ' ':
+			encoded += "%20"
+		case c == '\n':
+			encoded += "%0A"
+		case c == ':':
+			encoded += "%3A"
+		case c == '/':
+			encoded += "%2F"
+		default:
+			encoded += string(c)
+		}
+	}
+	return templ.SafeURL("https://wa.me/" + digits + "?text=" + encoded)
+}

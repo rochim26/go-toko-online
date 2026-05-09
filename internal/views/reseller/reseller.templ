@@ -1,0 +1,280 @@
+package reseller
+
+import (
+	"github.com/tokoonline/app/internal/httpx"
+	"github.com/tokoonline/app/internal/models"
+	"github.com/tokoonline/app/internal/services/reseller"
+	"github.com/tokoonline/app/internal/views/layouts"
+)
+
+templ Login(d layouts.PageData, errMsg string) {
+	@layouts.Base(d) {
+		<div style="max-width:400px;margin:5rem auto;padding:0 1rem">
+			<h1 class="h1">Login Reseller</h1>
+			if errMsg != "" {
+				<div class="flash flash-error">{ errMsg }</div>
+			}
+			<form method="POST" action="/reseller/login" class="card">
+				<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+				<div class="field"><label>Email</label><input class="input" type="email" name="email" required/></div>
+				<div class="field"><label>Password</label><input class="input" type="password" name="password" required/></div>
+				<button class="btn btn-block">Masuk</button>
+				<p class="muted" style="text-align:center;margin-top:1rem;font-size:.875rem">Belum jadi reseller? <a href="/reseller/register">Daftar</a></p>
+			</form>
+		</div>
+	}
+}
+
+templ Register(d layouts.PageData, errMsg string, requireKTP, requireNPWP bool) {
+	@layouts.Base(d) {
+		<div style="max-width:640px;margin:3rem auto;padding:0 1rem">
+			<h1 class="h1">Daftar Reseller</h1>
+			<p class="muted">Setelah daftar, akun Anda akan direview admin sebelum bisa belanja.</p>
+			if errMsg != "" {
+				<div class="flash flash-error">{ errMsg }</div>
+			}
+			<form method="POST" action="/reseller/register" class="card" enctype="multipart/form-data">
+				<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+				<div class="form-grid">
+					<div class="field"><label>Nama Pemilik</label><input class="input" name="name" required/></div>
+					<div class="field"><label>Nama Toko</label><input class="input" name="store_name" required/></div>
+					<div class="field"><label>Email</label><input class="input" type="email" name="email" required/></div>
+					<div class="field"><label>HP/WA</label><input class="input" name="phone" required/></div>
+					<div class="field"><label>Password (min 8)</label><input class="input" type="password" name="password" minlength="8" required/></div>
+					if requireKTP {
+						<div class="field"><label>No. KTP</label><input class="input" name="ktp_number" required/></div>
+					} else {
+						<div class="field"><label>No. KTP (opsional)</label><input class="input" name="ktp_number"/></div>
+					}
+					if requireNPWP {
+						<div class="field"><label>No. NPWP</label><input class="input" name="npwp" required/></div>
+					} else {
+						<div class="field"><label>No. NPWP (opsional)</label><input class="input" name="npwp"/></div>
+					}
+					<div class="field" style="grid-column:1/-1"><label>Alamat Toko</label><textarea class="input" name="address" rows="2" required></textarea></div>
+					<div class="field"><label>Provinsi</label><input class="input" name="province"/></div>
+					<div class="field"><label>Kota</label><input class="input" name="city"/></div>
+					<div class="field"><label>Kecamatan</label><input class="input" name="district"/></div>
+					<div class="field"><label>Kode Pos</label><input class="input" name="postal_code"/></div>
+				</div>
+				<h3 class="h3">Dokumen Verifikasi</h3>
+				<div class="form-grid">
+					<div class="field">
+						<label>Foto KTP</label>
+						<input class="input" type="file" name="ktp_file" accept="image/*"/>
+						<small class="muted">JPG/PNG, otomatis dikompres. Opsional jika sudah isi nomor KTP.</small>
+					</div>
+					<div class="field">
+						<label>Foto NPWP (opsional)</label>
+						<input class="input" type="file" name="npwp_file" accept="image/*"/>
+					</div>
+					<div class="field" style="grid-column:1/-1">
+						<label>Foto Toko (opsional, max 3)</label>
+						<input class="input" type="file" name="store_photos" accept="image/*" multiple/>
+						<small class="muted">Bisa upload sekaligus beberapa foto. Maks 25MB total.</small>
+					</div>
+				</div>
+				<button class="btn btn-block" style="margin-top:1rem">Daftar Sekarang</button>
+			</form>
+		</div>
+	}
+}
+
+type DashData struct {
+	Profile     *models.ResellerProfile
+	Tier        *models.ResellerTier
+	OutstandTOP float64
+	Statements  []*reseller.Statement
+}
+
+templ Dashboard(d layouts.PageData, dd DashData) {
+	@layouts.Reseller(d, "home") {
+		<h1 class="h1">Selamat datang, { dd.Profile.StoreName }</h1>
+		<div class="grid grid-3">
+			<div class="card">
+				<div class="muted">Tier</div>
+				if dd.Tier != nil {
+					<div style="font-size:1.5rem;font-weight:700">{ dd.Tier.Name }</div>
+					<div>Diskon: <strong>{ floatStr(dd.Tier.DiscountPct) }%</strong></div>
+					<div>MOQ: <strong>{ intStr(dd.Tier.MoqQty) } pcs</strong> / { httpx.IDR(dd.Tier.MoqValue) }</div>
+					if dd.Tier.TopDays > 0 {
+						<div>TOP: <strong>{ intStr(dd.Tier.TopDays) } hari</strong></div>
+					}
+				} else {
+					<div class="muted">Belum di-assign</div>
+				}
+			</div>
+			<div class="card">
+				<div class="muted">Outstanding TOP</div>
+				<div style="font-size:1.5rem;font-weight:700">{ httpx.IDR(dd.OutstandTOP) }</div>
+				if dd.Tier != nil && dd.Tier.CreditLimit > 0 {
+					<div class="muted">Limit: { httpx.IDR(dd.Tier.CreditLimit) }</div>
+				}
+			</div>
+			<div class="card">
+				<div class="muted">Status</div>
+				<div style="font-size:1.5rem;font-weight:700">{ dd.Profile.Status }</div>
+			</div>
+		</div>
+		<h2 class="h2">Rekap 12 Bulan</h2>
+		<div class="card" style="padding:0">
+			<table>
+				<thead><tr><th>Bulan</th><th>Pesanan</th><th>Total</th><th>Belum Lunas</th><th>Tagihan TOP</th></tr></thead>
+				<tbody>
+					for _, st := range dd.Statements {
+						<tr>
+							<td>{ st.Month }</td>
+							<td>{ intStr(st.OrderCount) }</td>
+							<td>{ httpx.IDR(st.GrandTotal) }</td>
+							<td>{ intStr(st.UnpaidCount) }</td>
+							<td>{ httpx.IDR(st.UnpaidTotal) }</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	}
+}
+
+func intStr(n int) string {
+	if n == 0 {
+		return "0"
+	}
+	neg := false
+	if n < 0 {
+		neg = true; n = -n
+	}
+	var b [20]byte
+	i := len(b)
+	for n > 0 { i--; b[i] = byte('0' + n%10); n /= 10 }
+	if neg {
+		i--; b[i] = '-'
+	}
+	return string(b[i:])
+}
+func floatStr(v float64) string {
+	intPart := int(v)
+	frac := int((v - float64(intPart))*100)
+	if frac == 0 {
+		return intStr(intPart)
+	}
+	return intStr(intPart) + "." + intStr(frac)
+}
+
+templ Catalog(d layouts.PageData, products []*models.Product, tier *models.ResellerTier) {
+	@layouts.Reseller(d, "catalog") {
+		<h1 class="h1">Katalog Reseller</h1>
+		if tier != nil {
+			<div class="flash flash-info">
+				Tier <strong>{ tier.Name }</strong> · Diskon { floatStr(tier.DiscountPct) }% · MOQ minimal { intStr(tier.MoqQty) } pcs / { httpx.IDR(tier.MoqValue) }
+			</div>
+		}
+		<div class="grid grid-4">
+			for _, p := range products {
+				<div class="prod">
+					<div class="prod-img">
+						if p.PrimaryImage != nil {
+							<img src={ *p.PrimaryImage } alt={ p.Name } loading="lazy"/>
+						}
+					</div>
+					<div class="prod-body">
+						<div class="prod-title">{ p.Name }</div>
+						<div class="prod-price">{ httpx.IDR(p.MinPrice) }</div>
+						<div class="prod-meta">Stok: { intStr(p.OnHand) }</div>
+						<form hx-post="/api/cart/add" hx-swap="none" hx-trigger="submit" hx-on::after-request="if(event.detail.successful){htmx.trigger('body','cart:updated',{count:JSON.parse(event.detail.xhr.responseText).count});this.reset();}" style="margin-top:.5rem">
+							<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+							<input type="hidden" name="variant_id" value={ defaultVariantID(p) }/>
+							<div class="qty">
+								<button type="button" onclick="this.nextElementSibling.value=Math.max(1,(parseInt(this.nextElementSibling.value)||1)-1)">-</button>
+								<input type="number" name="qty" value="1" min="1"/>
+								<button type="button" onclick="this.previousElementSibling.value=(parseInt(this.previousElementSibling.value)||1)+1">+</button>
+							</div>
+							<button class="btn btn-sm btn-block" style="margin-top:.5rem">+ Keranjang</button>
+						</form>
+					</div>
+				</div>
+			}
+		</div>
+	}
+}
+
+func defaultVariantID(p *models.Product) string {
+	// We don't have variant ID in the list view, so fall back to nothing - reseller catalog
+	// could call an API to fetch. For simplicity we won't expose buy in list here, so this
+	// stays empty if not pre-loaded. (Override implementation may pre-resolve.)
+	return ""
+}
+
+templ BulkOrder(d layouts.PageData) {
+	@layouts.Reseller(d, "bulk") {
+		<h1 class="h1">Bulk Order</h1>
+		<div class="card">
+			<h3 class="h3">Tambah by SKU</h3>
+			<form hx-post="/reseller/bulk/add" hx-swap="none" class="form-grid">
+				<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+				<div class="field"><label>SKU</label><input class="input" name="sku" required/></div>
+				<div class="field"><label>Qty</label><input class="input" type="number" name="qty" value="1" min="1" required/></div>
+				<button class="btn">+ Keranjang</button>
+			</form>
+			<hr style="margin:1.5rem 0;border:none;border-top:1px solid var(--c-line)"/>
+			<h3 class="h3">Upload CSV (sku,qty)</h3>
+			<form method="POST" action="/reseller/bulk/csv" enctype="multipart/form-data">
+				<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+				<input class="input" type="file" name="file" accept=".csv" required/>
+				<button class="btn" style="margin-top:.5rem">Upload</button>
+			</form>
+			<small class="muted">Format CSV: <code>sku,qty</code> (tanpa header).</small>
+		</div>
+	}
+}
+
+templ Profile(d layouts.PageData, p *models.ResellerProfile) {
+	@layouts.Reseller(d, "profile") {
+		<h1 class="h1">Profil Reseller</h1>
+		<div class="card">
+			<div><strong>Nama Toko:</strong> { p.StoreName }</div>
+			<div><strong>Status:</strong> { p.Status }</div>
+			if p.NPWP != nil {
+				<div><strong>NPWP:</strong> { *p.NPWP }</div>
+			}
+			if p.KTPNumber != nil {
+				<div><strong>KTP:</strong> { *p.KTPNumber }</div>
+			}
+			if p.Address != nil {
+				<div><strong>Alamat:</strong> { *p.Address }</div>
+			}
+		</div>
+	}
+}
+
+templ Statements(d layouts.PageData, statements []*reseller.Statement) {
+	@layouts.Reseller(d, "statements") {
+		<h1 class="h1">Rekap & Tagihan</h1>
+		<div class="card" style="padding:0">
+			<table>
+				<thead><tr><th>Bulan</th><th>Order</th><th>Total</th><th>Belum Lunas</th><th>Nilai Tagihan</th></tr></thead>
+				<tbody>
+					for _, s := range statements {
+						<tr>
+							<td>{ s.Month }</td>
+							<td>{ intStr(s.OrderCount) }</td>
+							<td>{ httpx.IDR(s.GrandTotal) }</td>
+							<td>{ intStr(s.UnpaidCount) }</td>
+							<td>{ httpx.IDR(s.UnpaidTotal) }</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	}
+}
+
+templ Pending(d layouts.PageData) {
+	@layouts.Base(d) {
+		<div class="container" style="max-width:600px;margin:5rem auto;text-align:center">
+			<h1 class="h1">Pendaftaran Diterima</h1>
+			<p>Akun Anda sedang direview oleh admin. Anda akan menerima email saat akun aktif.</p>
+			<a class="btn" href="/">Kembali ke Toko</a>
+		</div>
+	}
+}

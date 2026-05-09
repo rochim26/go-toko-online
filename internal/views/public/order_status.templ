@@ -1,0 +1,130 @@
+package public
+
+import (
+	"github.com/tokoonline/app/internal/httpx"
+	"github.com/tokoonline/app/internal/models"
+	"github.com/tokoonline/app/internal/views/layouts"
+)
+
+templ OrderStatus(d layouts.PageData, o *models.Order) {
+	@layouts.Public(d) {
+		<h1 class="h1">Pesanan { o.Code }</h1>
+		<div class="grid grid-2">
+			<div class="card">
+				<h3 class="h3">Status</h3>
+				<p>Status: <span class={ statusBadge(o.Status) }>{ statusLabel(o.Status) }</span></p>
+				<p>Pembayaran: <span class={ paymentBadge(o.PaymentStatus) }>{ paymentLabel(o.PaymentStatus) }</span></p>
+				if o.XenditInvoiceURL != nil && *o.XenditInvoiceURL != "" && o.PaymentStatus == "unpaid" {
+					<a class="btn btn-accent" href={ templ.SafeURL(*o.XenditInvoiceURL) }>Bayar via Xendit</a>
+				}
+				if o.PaymentTerm == "top" && o.TopDueAt != nil {
+					<p>Jatuh tempo: <strong>{ httpx.DateID(*o.TopDueAt) }</strong></p>
+					<a class="btn btn-outline" href={ templ.SafeURL("/account/orders/" + o.Code + "/po.pdf") }>Download PO PDF</a>
+				}
+				if o.AWB != nil && *o.AWB != "" {
+					<p>Resi: <strong>{ *o.AWB }</strong> ({ deref(o.CourierCode) })</p>
+				}
+			</div>
+			<div class="card">
+				<h3 class="h3">Pengiriman</h3>
+				<p>{ deref(o.ShipRecipient) } · { deref(o.ShipPhone) }</p>
+				<p>{ deref(o.ShipAddress) }</p>
+				<p>{ deref(o.ShipDistrict) }, { deref(o.ShipCity) }, { deref(o.ShipProvince) } { deref(o.ShipPostalCode) }</p>
+			</div>
+		</div>
+		<h3 class="h3">Item</h3>
+		<div class="card">
+			<table>
+				<thead><tr><th>Produk</th><th>SKU</th><th>Qty</th><th>Harga</th><th style="text-align:right">Total</th></tr></thead>
+				<tbody>
+					for _, it := range o.Items {
+						<tr>
+							<td>{ it.Name }</td>
+							<td>{ it.SKU }</td>
+							<td>{ intToString(it.Qty) }</td>
+							<td>{ httpx.IDR(it.UnitPrice) }</td>
+							<td style="text-align:right">{ httpx.IDR(it.LineTotal) }</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+		<div class="card" style="max-width:380px;margin-left:auto;margin-top:1rem">
+			<div class="sum-row"><span>Subtotal</span><span>{ httpx.IDR(o.Subtotal) }</span></div>
+			if o.DiscountTotal > 0 {
+				<div class="sum-row"><span>Diskon</span><span>-{ httpx.IDR(o.DiscountTotal) }</span></div>
+			}
+			<div class="sum-row"><span>Ongkos Kirim</span><span>{ httpx.IDR(o.ShippingTotal) }</span></div>
+			if o.TaxTotal > 0 {
+				<div class="sum-row"><span>PPN</span><span>{ httpx.IDR(o.TaxTotal) }</span></div>
+			}
+			<div class="sum-row sum-grand"><span>Grand Total</span><span>{ httpx.IDR(o.GrandTotal) }</span></div>
+		</div>
+	}
+}
+
+func statusBadge(s string) string {
+	switch s {
+	case "paid", "delivered":
+		return "badge badge-success"
+	case "cancelled", "refunded", "overdue":
+		return "badge badge-danger"
+	case "shipped", "packed":
+		return "badge badge-info"
+	default:
+		return "badge badge-warn"
+	}
+}
+func statusLabel(s string) string {
+	switch s {
+	case "pending":
+		return "Pending"
+	case "awaiting_payment":
+		return "Menunggu Pembayaran"
+	case "paid":
+		return "Sudah Dibayar"
+	case "packed":
+		return "Sedang Dikemas"
+	case "shipped":
+		return "Dikirim"
+	case "delivered":
+		return "Diterima"
+	case "cancelled":
+		return "Dibatalkan"
+	case "refunded":
+		return "Direfund"
+	case "on_credit":
+		return "Tagihan Tempo"
+	case "overdue":
+		return "Lewat Jatuh Tempo"
+	}
+	return s
+}
+func paymentBadge(s string) string {
+	switch s {
+	case "paid":
+		return "badge badge-success"
+	case "failed", "expired":
+		return "badge badge-danger"
+	case "top":
+		return "badge badge-info"
+	}
+	return "badge badge-warn"
+}
+func paymentLabel(s string) string {
+	switch s {
+	case "unpaid":
+		return "Belum Bayar"
+	case "paid":
+		return "Lunas"
+	case "failed":
+		return "Gagal"
+	case "expired":
+		return "Kadaluarsa"
+	case "refunded":
+		return "Direfund"
+	case "top":
+		return "Tagihan Tempo"
+	}
+	return s
+}

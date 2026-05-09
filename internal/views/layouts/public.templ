@@ -1,0 +1,13 @@
+package layouts
+
+import "github.com/tokoonline/app/internal/views/components"
+
+templ Public(d PageData) {
+	@Base(d) {
+		@components.Header(d)
+		<main class="container" id="main">
+			{ children... }
+		</main>
+		@components.Footer(d)
+	}
+}

@@ -1,0 +1,99 @@
+package public
+
+import (
+	"github.com/tokoonline/app/internal/httpx"
+	"github.com/tokoonline/app/internal/models"
+	"github.com/tokoonline/app/internal/views/layouts"
+)
+
+templ OrderSuccess(d layouts.PageData, o *models.Order) {
+	@layouts.Public(d) {
+		<div style="max-width:640px;margin:2rem auto;text-align:center">
+			<div style="font-size:3rem">🎉</div>
+			<h1 class="h1">Pesanan Berhasil Dibuat!</h1>
+			<p class="muted">Nomor pesanan Anda: <strong>{ o.Code }</strong></p>
+			if o.PaymentTerm == "top" {
+				<div class="card" style="text-align:left;margin-top:1rem">
+					<h3 class="h3">Pembayaran Tempo (TOP)</h3>
+					<p>Pesanan ini ditagih dengan jatuh tempo:
+						if o.TopDueAt != nil {
+							<strong>{ httpx.DateID(*o.TopDueAt) }</strong>
+						}
+					</p>
+					<p class="muted">Mohon lakukan pembayaran sebelum tanggal jatuh tempo. Dokumen PO sudah kami buatkan otomatis.</p>
+					<a class="btn" href={ templ.SafeURL("/account/orders/" + o.Code + "/po.pdf") }>Download PO PDF</a>
+				</div>
+			} else if o.XenditInvoiceURL != nil && *o.XenditInvoiceURL != "" && o.PaymentStatus != "paid" {
+				<div class="card" style="text-align:left;margin-top:1rem">
+					<h3 class="h3">Selesaikan Pembayaran</h3>
+					<p>Total: <strong style="font-size:1.25rem">{ httpx.IDR(o.GrandTotal) }</strong></p>
+					<a class="btn btn-accent btn-block" href={ templ.SafeURL(*o.XenditInvoiceURL) }>Bayar Sekarang via Xendit</a>
+					<p class="muted" style="font-size:.85rem;margin-top:1rem">Invoice akan kadaluarsa dalam 24 jam. Jika sudah kadaluarsa, hubungi admin.</p>
+				</div>
+			} else if o.PaymentStatus == "paid" {
+				<div class="flash flash-success">Pembayaran sudah lunas. Pesanan sedang diproses.</div>
+			}
+			<div style="margin-top:1rem">
+				<a class="btn btn-outline" href="/c/semua">Lanjut Belanja</a>
+				<a class="btn" href={ templ.SafeURL("/account/orders/" + o.Code) }>Lacak Pesanan</a>
+			</div>
+		</div>
+		<!-- Fire Purchase event client-side for any pixel that hasn't received it -->
+		@templ.Raw(purchasePixelInline(o))
+	}
+}
+
+templ OrderFailedPage(d layouts.PageData, o *models.Order) {
+	@layouts.Public(d) {
+		<div style="max-width:640px;margin:2rem auto;text-align:center">
+			<div style="font-size:3rem">⚠️</div>
+			<h1 class="h1">Pembayaran Belum Berhasil</h1>
+			<p>Pesanan: <strong>{ o.Code }</strong></p>
+			<p class="muted">Pembayaran Anda belum berhasil atau dibatalkan. Anda dapat mencoba lagi.</p>
+			if o.XenditInvoiceURL != nil && *o.XenditInvoiceURL != "" {
+				<a class="btn btn-accent" href={ templ.SafeURL(*o.XenditInvoiceURL) }>Coba Bayar Lagi</a>
+			}
+			<div style="margin-top:1rem">
+				<a class="btn btn-outline" href={ templ.SafeURL("/account/orders/" + o.Code) }>Detail Pesanan</a>
+				<a class="btn btn-outline" href="/cart">Kembali ke Keranjang</a>
+			</div>
+		</div>
+	}
+}
+
+func purchasePixelInline(o *models.Order) string {
+	ids := make([]string, 0, len(o.Items))
+	for _, it := range o.Items {
+		ids = append(ids, it.SKU)
+	}
+	gaItems := "["
+	for i, it := range o.Items {
+		if i > 0 {
+			gaItems += ","
+		}
+		gaItems += `{item_id:"` + jsEsc(it.SKU) + `",item_name:"` + jsEsc(it.Name) + `",price:` + httpx.JSNumber(it.UnitPrice) + `,quantity:` + httpx.JSNumber(float64(it.Qty)) + `}`
+	}
+	gaItems += "]"
+	return `<script>
+if (window.fbq) { try { window.fbq('track','Purchase',{currency:'IDR',value:` + httpx.JSNumber(o.GrandTotal) + `,content_ids:` + httpx.JSStringArray(ids) + `,content_type:'product'}, {eventID:'p-` + o.Code + `'}); } catch(e){} }
+if (window.gtag) { try { window.gtag('event','purchase',{transaction_id:'` + o.Code + `',value:` + httpx.JSNumber(o.GrandTotal) + `,currency:'IDR',items:` + gaItems + `}); } catch(e){} }
+</script>`
+}
+
+func jsEsc(s string) string {
+	out := make([]byte, 0, len(s))
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		switch c {
+		case '"', '\\', '<', '>':
+			out = append(out, '\\', c)
+		case '\n':
+			out = append(out, '\\', 'n')
+		case '\r':
+			out = append(out, '\\', 'r')
+		default:
+			out = append(out, c)
+		}
+	}
+	return string(out)
+}

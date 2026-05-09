@@ -1,0 +1,706 @@
+package admin
+
+import (
+	"github.com/tokoonline/app/internal/httpx"
+	"github.com/tokoonline/app/internal/models"
+	"github.com/tokoonline/app/internal/views/layouts"
+)
+
+templ Login(d layouts.PageData, errMsg string) {
+	@layouts.Base(d) {
+		<div style="max-width:400px;margin:5rem auto;padding:0 1rem">
+			<h1 class="h1">Login Admin</h1>
+			if errMsg != "" {
+				<div class="flash flash-error">{ errMsg }</div>
+			}
+			<form method="POST" action="/admin/login" class="card">
+				<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+				<div class="field"><label>Email</label><input class="input" type="email" name="email" required/></div>
+				<div class="field"><label>Password</label><input class="input" type="password" name="password" required/></div>
+				<button class="btn btn-block" type="submit">Masuk</button>
+			</form>
+		</div>
+	}
+}
+
+type DashStat struct {
+	OrdersToday   int
+	RevenueToday  float64
+	OrdersTotal   int
+	RevenueTotal  float64
+	PendingOrders int
+	PendingResellers int
+	LowStock      int
+}
+
+templ Dashboard(d layouts.PageData, st DashStat) {
+	@layouts.Admin(d, "dashboard") {
+		<h1 class="h1">Dashboard</h1>
+		<div class="grid grid-4">
+			<div class="card"><div class="muted">Pesanan Hari Ini</div><div style="font-size:1.5rem;font-weight:700">{ intStr(st.OrdersToday) }</div></div>
+			<div class="card"><div class="muted">Omzet Hari Ini</div><div style="font-size:1.5rem;font-weight:700">{ httpx.IDR(st.RevenueToday) }</div></div>
+			<div class="card"><div class="muted">Total Pesanan</div><div style="font-size:1.5rem;font-weight:700">{ intStr(st.OrdersTotal) }</div></div>
+			<div class="card"><div class="muted">Total Omzet</div><div style="font-size:1.5rem;font-weight:700">{ httpx.IDR(st.RevenueTotal) }</div></div>
+		</div>
+		<div class="grid grid-3" style="margin-top:1rem">
+			<div class="card"><div class="muted">Perlu diproses</div><div style="font-size:1.5rem;font-weight:700">{ intStr(st.PendingOrders) }</div><a href="/admin/orders?status=paid">Lihat</a></div>
+			<div class="card"><div class="muted">Reseller Pending</div><div style="font-size:1.5rem;font-weight:700">{ intStr(st.PendingResellers) }</div><a href="/admin/resellers?status=pending">Approve</a></div>
+			<div class="card"><div class="muted">Stok Menipis</div><div style="font-size:1.5rem;font-weight:700">{ intStr(st.LowStock) }</div><a href="/admin/products?lowstock=1">Cek</a></div>
+		</div>
+	}
+}
+
+func intStr(n int) string {
+	if n == 0 {
+		return "0"
+	}
+	neg := false
+	if n < 0 {
+		neg = true; n = -n
+	}
+	var b [20]byte
+	i := len(b)
+	for n > 0 { i--; b[i] = byte('0' + n%10); n /= 10 }
+	if neg {
+		i--; b[i] = '-'
+	}
+	return string(b[i:])
+}
+
+templ Products(d layouts.PageData, products []*models.Product) {
+	@layouts.Admin(d, "products") {
+		<div class="flex between"><h1 class="h1">Produk</h1><a class="btn" href="/admin/products/new">+ Tambah Produk</a></div>
+		<div class="card" style="padding:0">
+			<table>
+				<thead><tr><th>Nama</th><th>Slug</th><th>Status</th><th>Stok</th><th>Harga</th><th></th></tr></thead>
+				<tbody>
+					for _, p := range products {
+						<tr>
+							<td>{ p.Name }</td>
+							<td><code>{ p.Slug }</code></td>
+							<td><span class={ statusBadge(p.Status) }>{ p.Status }</span></td>
+							<td>{ intStr(p.OnHand) }</td>
+							<td>{ httpx.IDR(p.MinPrice) }</td>
+							<td><a class="btn btn-outline btn-sm" href={ templ.URL("/admin/products/" + p.ID.String()) }>Edit</a></td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	}
+}
+
+func statusBadge(s string) string {
+	switch s {
+	case "active": return "badge badge-success"
+	case "draft": return "badge badge-warn"
+	case "archived": return "badge badge-danger"
+	}
+	return "badge"
+}
+
+type ProductFormData struct {
+	IsNew      bool
+	ID         string
+	Slug       string
+	Name       string
+	Brands     []*models.Brand
+	BrandID    string
+	Categories []*models.Category
+	CategoryID string
+	ShortDesc  string
+	Description string
+	Status     string
+	IsB2C      bool
+	IsB2B      bool
+	WeightGrams int
+	SeoTitle   string
+	SeoDesc    string
+	FocusKeyword string
+	OGImageURL string
+	GMCEnabled bool
+	GMCBrand   string
+	GMCGtin    string
+	GMCMpn     string
+	FAQs       string
+	Variants   []*models.Variant
+	Images     []*models.ProductImage
+	Tiers      []*models.ResellerTier
+	PricesByVariant map[string]map[string]float64 // variantID -> audience -> price
+	Inventory  map[string]int                    // variantID -> on_hand
+}
+
+templ ProductForm(d layouts.PageData, f ProductFormData) {
+	@layouts.Admin(d, "products") {
+		<h1 class="h1">
+			if f.IsNew {
+				Tambah Produk
+			} else {
+				Edit Produk
+			}
+		</h1>
+		<form method="POST" action={ templ.SafeURL(productFormAction(f)) } class="card">
+			<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+			<div class="form-grid">
+				<div class="field"><label>Nama</label><input class="input" name="name" value={ f.Name } required/></div>
+				<div class="field"><label>Slug (URL)</label><input class="input" name="slug" value={ f.Slug } required pattern="[a-z0-9-]+"/></div>
+				<div class="field"><label>Brand</label>
+					<select class="select" name="brand_id">
+						<option value="">-- pilih --</option>
+						for _, b := range f.Brands {
+							<option value={ b.ID.String() } selected?={ f.BrandID == b.ID.String() }>{ b.Name }</option>
+						}
+					</select>
+				</div>
+				<div class="field"><label>Kategori</label>
+					<select class="select" name="category_id">
+						<option value="">-- pilih --</option>
+						for _, c := range f.Categories {
+							<option value={ c.ID.String() } selected?={ f.CategoryID == c.ID.String() }>{ c.Name }</option>
+						}
+					</select>
+				</div>
+				<div class="field"><label>Status</label>
+					<select class="select" name="status">
+						<option value="draft" selected?={ f.Status == "draft" }>Draft</option>
+						<option value="active" selected?={ f.Status == "active" }>Active</option>
+						<option value="archived" selected?={ f.Status == "archived" }>Archived</option>
+					</select>
+				</div>
+				<div class="field"><label>Berat (gram)</label><input class="input" type="number" name="weight_grams" value={ intStr(f.WeightGrams) } min="1"/></div>
+			</div>
+			<div class="field"><label>Deskripsi singkat</label><input class="input" name="short_desc" value={ f.ShortDesc } maxlength="280"/></div>
+			<div class="field"><label>Deskripsi (HTML diperbolehkan)</label><textarea class="input" name="description" rows="6">{ f.Description }</textarea></div>
+			<div class="form-grid">
+				<label><input type="checkbox" name="is_b2c" checked?={ f.IsB2C }/> Tampilkan di toko publik (B2C)</label>
+				<label><input type="checkbox" name="is_b2b" checked?={ f.IsB2B }/> Tersedia untuk reseller (B2B)</label>
+			</div>
+			<h2 class="h2">SEO</h2>
+			<div class="form-grid">
+				<div class="field"><label>SEO Title</label><input class="input" name="seo_title" value={ f.SeoTitle }/></div>
+				<div class="field"><label>Focus Keyword</label><input class="input" name="focus_keyword" value={ f.FocusKeyword }/></div>
+				<div class="field" style="grid-column:1/-1"><label>SEO Description</label><input class="input" name="seo_desc" value={ f.SeoDesc } maxlength="320"/></div>
+				<div class="field" style="grid-column:1/-1"><label>OG Image URL</label><input class="input" name="og_image_url" value={ f.OGImageURL }/></div>
+			</div>
+			<div class="field"><label>FAQ (JSON array of q/a)</label>
+				<textarea class="input" name="faqs" rows="4">{ f.FAQs }</textarea>
+				<small class="muted">Akan jadi schema FAQPage untuk SEO + Google AI Overview.</small>
+			</div>
+			<h2 class="h2">Google Merchant</h2>
+			<div class="form-grid">
+				<label><input type="checkbox" name="gmc_enabled" checked?={ f.GMCEnabled }/> Sertakan di feed GMC</label>
+				<div></div>
+				<div class="field"><label>Brand (GMC)</label><input class="input" name="gmc_brand" value={ f.GMCBrand }/></div>
+				<div class="field"><label>GTIN/EAN/UPC</label><input class="input" name="gmc_gtin" value={ f.GMCGtin }/></div>
+				<div class="field"><label>MPN</label><input class="input" name="gmc_mpn" value={ f.GMCMpn }/></div>
+			</div>
+			<button class="btn" type="submit">Simpan</button>
+		</form>
+		if !f.IsNew {
+			<h2 class="h2">Varian & Harga</h2>
+			<div class="card" style="padding:0">
+				<table>
+					<thead><tr><th>SKU</th><th>Nama</th><th>Stok</th><th>Harga B2C</th>
+						for _, t := range f.Tiers {
+							<th>{ t.Name }</th>
+						}
+						<th></th>
+					</tr></thead>
+					<tbody>
+						for _, v := range f.Variants {
+							<tr>
+								<td><code>{ v.SKU }</code></td>
+								<td>{ derefStrPtr(v.Name) }</td>
+								<td>
+									<form hx-post={ "/admin/products/" + f.ID + "/variants/" + v.ID.String() + "/inventory" } hx-swap="none" style="display:inline-flex;gap:.25rem">
+										<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+										<input class="input" type="number" name="qty" value={ intStr(f.Inventory[v.ID.String()]) } style="width:80px"/>
+										<button class="btn btn-sm">Update</button>
+									</form>
+								</td>
+								<td>
+									<form hx-post={ "/admin/products/" + f.ID + "/variants/" + v.ID.String() + "/prices" } hx-swap="none" style="display:inline-flex;gap:.25rem">
+										<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+										<input type="hidden" name="audience" value="b2c"/>
+										<input class="input" type="number" step="0.01" name="price" value={ floatStr(f.PricesByVariant[v.ID.String()]["b2c"]) } style="width:120px"/>
+										<button class="btn btn-sm">Set</button>
+									</form>
+								</td>
+								for _, t := range f.Tiers {
+									<td>
+										<form hx-post={ "/admin/products/" + f.ID + "/variants/" + v.ID.String() + "/prices" } hx-swap="none" style="display:inline-flex;gap:.25rem">
+											<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+											<input type="hidden" name="audience" value={ t.ID.String() }/>
+											<input class="input" type="number" step="0.01" name="price" value={ floatStr(f.PricesByVariant[v.ID.String()][t.ID.String()]) } style="width:110px" placeholder={ floatStr(0) }/>
+											<button class="btn btn-sm">Set</button>
+										</form>
+									</td>
+								}
+								<td>
+									<form method="POST" action={ templ.SafeURL("/admin/products/" + f.ID + "/variants/" + v.ID.String() + "/delete") } onsubmit="return confirm('Hapus varian ini?')" style="display:inline">
+										<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+										<button class="btn btn-outline btn-sm" type="submit">Hapus</button>
+									</form>
+								</td>
+							</tr>
+						}
+						<tr>
+							<td colspan="20">
+								<form method="POST" action={ templ.SafeURL("/admin/products/" + f.ID + "/variants") } class="form-grid" style="margin:.5rem 0">
+									<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+									<div class="field"><label>SKU baru</label><input class="input" name="sku" required/></div>
+									<div class="field"><label>Nama varian</label><input class="input" name="name"/></div>
+									<div class="field"><label>Harga dasar</label><input class="input" type="number" step="0.01" name="base_price" required/></div>
+									<div class="field"><label>Berat (g)</label><input class="input" type="number" name="weight_grams"/></div>
+									<button class="btn" type="submit">+ Varian</button>
+								</form>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<h2 class="h2">Foto Produk</h2>
+			<div class="card">
+				<div class="grid grid-4">
+					for _, im := range f.Images {
+						<div class="card">
+							<img src={ im.URL } alt="" style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:.5rem"/>
+							if im.IsPrimary {
+								<span class="badge badge-success">Utama</span>
+							}
+							<form method="POST" action={ templ.SafeURL("/admin/products/" + f.ID + "/images/" + im.ID.String() + "/delete") } style="margin-top:.5rem">
+								<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+								<button class="btn btn-outline btn-sm">Hapus</button>
+							</form>
+						</div>
+					}
+				</div>
+				<form method="POST" action={ templ.SafeURL("/admin/products/" + f.ID + "/images") } enctype="multipart/form-data" style="margin-top:1rem">
+					<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+					<label>Upload satu atau beberapa foto sekaligus (drag & drop atau klik)</label>
+					<input class="input" type="file" name="files" accept="image/*" multiple required/>
+					<small class="muted">Bisa pilih lebih dari satu file. Maksimum total 50MB. Otomatis diresize ke 1600px dan dikompres ke JPEG.</small>
+					<input class="input" name="alt_text" placeholder="Alt text (untuk SEO) - opsional" style="margin-top:.5rem"/>
+					<label style="margin-top:.5rem"><input type="checkbox" name="is_primary" value="1"/> Jadikan foto pertama sebagai utama</label>
+					<button class="btn" type="submit" style="margin-top:.5rem">Upload</button>
+				</form>
+			</div>
+		}
+	}
+}
+
+func productFormAction(f ProductFormData) string {
+	if f.IsNew {
+		return "/admin/products"
+	}
+	return "/admin/products/" + f.ID
+}
+func derefStrPtr(s *string) string { if s == nil { return "" }; return *s }
+func floatStr(v float64) string {
+	intPart := int64(v + 0.5)
+	if v == 0 {
+		return ""
+	}
+	return intStr(int(intPart))
+}
+
+templ Orders(d layouts.PageData, orders []*models.Order, status, channel string) {
+	@layouts.Admin(d, "orders") {
+		<h1 class="h1">Pesanan</h1>
+		<div class="tabs">
+			<a class={ tabActive("", status) } href="/admin/orders">Semua</a>
+			<a class={ tabActive("awaiting_payment", status) } href="/admin/orders?status=awaiting_payment">Menunggu Bayar</a>
+			<a class={ tabActive("paid", status) } href="/admin/orders?status=paid">Sudah Dibayar</a>
+			<a class={ tabActive("packed", status) } href="/admin/orders?status=packed">Dikemas</a>
+			<a class={ tabActive("shipped", status) } href="/admin/orders?status=shipped">Dikirim</a>
+			<a class={ tabActive("delivered", status) } href="/admin/orders?status=delivered">Diterima</a>
+			<a class={ tabActive("on_credit", status) } href="/admin/orders?status=on_credit">Tagihan Tempo</a>
+		</div>
+		<div class="card" style="padding:0">
+			<table>
+				<thead><tr><th>Kode</th><th>Tanggal</th><th>Channel</th><th>Pelanggan</th><th>Status</th><th>Bayar</th><th>Total</th><th></th></tr></thead>
+				<tbody>
+					for _, o := range orders {
+						<tr>
+							<td><a href={ templ.URL("/admin/orders/" + o.Code) }><code>{ o.Code }</code></a></td>
+							<td>{ httpx.DateTimeID(o.CreatedAt) }</td>
+							<td><span class="badge">{ o.Channel }</span></td>
+							<td>{ derefStrPtr(o.CustomerName) }<br/><span class="muted" style="font-size:.8rem">{ derefStrPtr(o.CustomerEmail) }</span></td>
+							<td><span class="badge">{ o.Status }</span></td>
+							<td><span class="badge">{ o.PaymentStatus }</span></td>
+							<td>{ httpx.IDR(o.GrandTotal) }</td>
+							<td><a class="btn btn-outline btn-sm" href={ templ.URL("/admin/orders/" + o.Code) }>Detail</a></td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	}
+}
+
+func tabActive(want, cur string) string {
+	if want == cur {
+		return "active"
+	}
+	return ""
+}
+
+templ OrderDetail(d layouts.PageData, o *models.Order) {
+	@layouts.Admin(d, "orders") {
+		<h1 class="h1">Pesanan { o.Code }</h1>
+		<div class="grid grid-2">
+			<div class="card">
+				<h3 class="h3">Status</h3>
+				<form method="POST" action={ templ.SafeURL("/admin/orders/" + o.Code + "/status") }>
+					<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+					<div class="field">
+						<label>Status</label>
+						<select class="select" name="status">
+							for _, s := range []string{"awaiting_payment","paid","packed","shipped","delivered","cancelled","refunded","on_credit","overdue"} {
+								<option value={ s } selected?={ o.Status == s }>{ s }</option>
+							}
+						</select>
+					</div>
+					<div class="field"><label>Resi (AWB)</label><input class="input" name="awb" value={ derefStrPtr(o.AWB) }/></div>
+					<div class="field"><label>Kurir</label><input class="input" name="courier_code" value={ derefStrPtr(o.CourierCode) }/></div>
+					<div class="field"><label>Service</label><input class="input" name="courier_service" value={ derefStrPtr(o.CourierService) }/></div>
+					<button class="btn">Simpan</button>
+				</form>
+			</div>
+			<div class="card">
+				<h3 class="h3">Pengiriman</h3>
+				<p>{ derefStrPtr(o.ShipRecipient) } · { derefStrPtr(o.ShipPhone) }</p>
+				<p>{ derefStrPtr(o.ShipAddress) }</p>
+				<p>{ derefStrPtr(o.ShipDistrict) }, { derefStrPtr(o.ShipCity) }, { derefStrPtr(o.ShipProvince) } { derefStrPtr(o.ShipPostalCode) }</p>
+				<h3 class="h3">Pembayaran</h3>
+				<p>Metode: <strong>{ derefStrPtr(o.PaymentMethod) }</strong></p>
+				if o.XenditInvoiceURL != nil {
+					<a class="btn btn-outline" href={ templ.SafeURL(*o.XenditInvoiceURL) } target="_blank">Buka invoice Xendit</a>
+				}
+				if o.PaymentTerm == "top" {
+					<a class="btn btn-outline" href={ templ.SafeURL("/admin/orders/" + o.Code + "/po.pdf") }>Download PO PDF</a>
+				}
+			</div>
+		</div>
+		<div class="card" style="margin-top:1rem">
+			<h3 class="h3">Item</h3>
+			<table>
+				<thead><tr><th>SKU</th><th>Produk</th><th>Qty</th><th>Harga</th><th style="text-align:right">Total</th></tr></thead>
+				<tbody>
+					for _, it := range o.Items {
+						<tr>
+							<td><code>{ it.SKU }</code></td>
+							<td>{ it.Name }</td>
+							<td>{ intStr(it.Qty) }</td>
+							<td>{ httpx.IDR(it.UnitPrice) }</td>
+							<td style="text-align:right">{ httpx.IDR(it.LineTotal) }</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+			<div class="sum-row"><span>Subtotal</span><span>{ httpx.IDR(o.Subtotal) }</span></div>
+			if o.DiscountTotal > 0 {
+				<div class="sum-row"><span>Diskon</span><span>-{ httpx.IDR(o.DiscountTotal) }</span></div>
+			}
+			<div class="sum-row"><span>Ongkos Kirim</span><span>{ httpx.IDR(o.ShippingTotal) }</span></div>
+			if o.TaxTotal > 0 {
+				<div class="sum-row"><span>PPN</span><span>{ httpx.IDR(o.TaxTotal) }</span></div>
+			}
+			<div class="sum-row sum-grand"><span>Grand Total</span><span>{ httpx.IDR(o.GrandTotal) }</span></div>
+		</div>
+	}
+}
+
+type ResellerListItem struct {
+	UserID    string
+	Email     string
+	StoreName string
+	Status    string
+	TierName  string
+	CreatedAt string
+}
+
+templ Resellers(d layouts.PageData, items []ResellerListItem, tiers []*models.ResellerTier, status string) {
+	@layouts.Admin(d, "resellers") {
+		<h1 class="h1">Reseller</h1>
+		<div class="tabs">
+			<a class={ tabActive("", status) } href="/admin/resellers">Semua</a>
+			<a class={ tabActive("pending", status) } href="/admin/resellers?status=pending">Pending</a>
+			<a class={ tabActive("approved", status) } href="/admin/resellers?status=approved">Approved</a>
+			<a class={ tabActive("rejected", status) } href="/admin/resellers?status=rejected">Rejected</a>
+		</div>
+		<div class="card" style="padding:0">
+			<table>
+				<thead><tr><th>Toko</th><th>Email</th><th>Status</th><th>Tier</th><th>Daftar</th><th></th></tr></thead>
+				<tbody>
+					for _, it := range items {
+						<tr>
+							<td>{ it.StoreName }</td>
+							<td>{ it.Email }</td>
+							<td><span class="badge">{ it.Status }</span></td>
+							<td>{ it.TierName }</td>
+							<td>{ it.CreatedAt }</td>
+							<td>
+								if it.Status == "pending" {
+									<form method="POST" action={ templ.SafeURL("/admin/resellers/" + it.UserID + "/approve") } style="display:inline-flex;gap:.25rem">
+										<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+										<select class="select" name="tier_id">
+											for _, t := range tiers {
+												<option value={ t.ID.String() }>{ t.Name }</option>
+											}
+										</select>
+										<button class="btn btn-sm">Approve</button>
+									</form>
+									<form method="POST" action={ templ.SafeURL("/admin/resellers/" + it.UserID + "/reject") } style="display:inline">
+										<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+										<button class="btn btn-outline btn-sm">Reject</button>
+									</form>
+								}
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	}
+}
+
+templ Tiers(d layouts.PageData, tiers []*models.ResellerTier) {
+	@layouts.Admin(d, "tiers") {
+		<h1 class="h1">Tier Reseller</h1>
+		<div class="card" style="padding:0">
+			<table>
+				<thead><tr><th>Code</th><th>Nama</th><th>Diskon</th><th>MOQ Qty</th><th>MOQ Value</th><th>TOP (hari)</th><th>Limit Kredit</th></tr></thead>
+				<tbody>
+					for _, t := range tiers {
+						<tr>
+							<td>{ t.Code }</td><td>{ t.Name }</td><td>{ floatStr(t.DiscountPct) }%</td><td>{ intStr(t.MoqQty) }</td><td>{ httpx.IDR(t.MoqValue) }</td><td>{ intStr(t.TopDays) }</td><td>{ httpx.IDR(t.CreditLimit) }</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+		<form method="POST" action="/admin/tiers" class="card" style="margin-top:1rem">
+			<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+			<h3 class="h3">Tambah / Update Tier (kode unik)</h3>
+			<div class="form-grid">
+				<div class="field"><label>Code</label><input class="input" name="code" required/></div>
+				<div class="field"><label>Nama</label><input class="input" name="name" required/></div>
+				<div class="field"><label>Diskon %</label><input class="input" type="number" step="0.01" name="discount_pct" value="0"/></div>
+				<div class="field"><label>MOQ Qty</label><input class="input" type="number" name="moq_qty" value="1"/></div>
+				<div class="field"><label>MOQ Value</label><input class="input" type="number" name="moq_value" value="0"/></div>
+				<div class="field"><label>TOP (hari)</label><input class="input" type="number" name="top_days" value="0"/></div>
+				<div class="field"><label>Limit Kredit</label><input class="input" type="number" name="credit_limit" value="0"/></div>
+			</div>
+			<button class="btn">Simpan</button>
+		</form>
+	}
+}
+
+type SettingsData struct {
+	StoreInfo         map[string]any
+	SEO               map[string]any
+	Marketing         map[string]any
+	GMC               map[string]any
+	Xendit            map[string]any
+	Biteship          map[string]any
+	Shipping          map[string]any
+	Mailer            map[string]any
+	Tax               map[string]any
+	Reseller          map[string]any
+	ActiveTab         string
+}
+
+// store settings UI references CSRF from outer scope; we expose a small wrapper.
+var _ = "// settingsStore uses CSRF token via its own form below"
+
+templ Settings(d layouts.PageData, sd SettingsData) {
+	@layouts.Admin(d, "settings") {
+		<h1 class="h1">Pengaturan</h1>
+		<div class="tabs">
+			for _, t := range []struct{ K, L string }{
+				{"store","Toko"},{"seo","SEO"},{"marketing","Pixel/GA4"},{"gmc","Merchant Center"},{"xendit","Xendit"},{"biteship","Biteship"},{"shipping","Pengiriman"},{"mailer","Email"},{"tax","Pajak"},{"reseller","Reseller"},
+			} {
+				<a class={ tabActive(t.K, sd.ActiveTab) } href={ templ.URL("/admin/settings?tab=" + t.K) }>{ t.L }</a>
+			}
+		</div>
+		<form method="POST" action={ templ.SafeURL("/admin/settings/" + sd.ActiveTab) } class="card">
+			<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+			if sd.ActiveTab == "store" {
+				@settingsStore(sd.StoreInfo, d.CSRFToken)
+			} else if sd.ActiveTab == "seo" {
+				@settingsSEO(sd.SEO)
+			} else if sd.ActiveTab == "marketing" {
+				@settingsMarketing(sd.Marketing)
+			} else if sd.ActiveTab == "gmc" {
+				@settingsGMC(sd.GMC)
+			} else if sd.ActiveTab == "xendit" {
+				@settingsXendit(sd.Xendit)
+			} else if sd.ActiveTab == "biteship" {
+				@settingsBiteship(sd.Biteship)
+			} else if sd.ActiveTab == "shipping" {
+				@settingsShipping(sd.Shipping)
+			} else if sd.ActiveTab == "mailer" {
+				@settingsMailer(sd.Mailer)
+			} else if sd.ActiveTab == "tax" {
+				@settingsTax(sd.Tax)
+			} else if sd.ActiveTab == "reseller" {
+				@settingsReseller(sd.Reseller)
+			}
+			<button class="btn" type="submit" style="margin-top:1rem">Simpan</button>
+		</form>
+	}
+}
+
+func anyStr(m map[string]any, k string) string {
+	if v, ok := m[k]; ok && v != nil {
+		switch x := v.(type) {
+		case string: return x
+		case float64:
+			if x == float64(int64(x)) {
+				return intStr(int(x))
+			}
+			return floatStr(x)
+		case bool:
+			if x {
+				return "1"
+			}
+			return ""
+		}
+	}
+	return ""
+}
+
+func anyBool(m map[string]any, k string) bool {
+	v, _ := m[k].(bool)
+	return v
+}
+
+templ settingsStore(s map[string]any, csrf string) {
+	<div class="form-grid">
+		<div class="field"><label>Nama Toko</label><input class="input" name="name" value={ anyStr(s, "name") } required/></div>
+		<div class="field"><label>Tagline</label><input class="input" name="tagline" value={ anyStr(s, "tagline") }/></div>
+		<div class="field"><label>Email</label><input class="input" type="email" name="email" value={ anyStr(s, "email") }/></div>
+		<div class="field"><label>Telepon</label><input class="input" name="phone" value={ anyStr(s, "phone") }/></div>
+		<div class="field"><label>WhatsApp Number</label><input class="input" name="wa_number" value={ anyStr(s, "wa_number") } placeholder="+62812..."/></div>
+		<div class="field" style="grid-column:1/-1"><label>Alamat</label><input class="input" name="address" value={ anyStr(s, "address") }/></div>
+		<div class="field"><label>Origin Area ID (Biteship)</label><input class="input" name="origin_area_id" value={ anyStr(s, "origin_area_id") }/></div>
+		<div class="field"><label>Origin Postal Code</label><input class="input" name="origin_postal_code" value={ anyStr(s, "origin_postal_code") }/></div>
+		<div class="field" style="grid-column:1/-1">
+			<label>Logo Toko</label>
+			<input class="input" name="logo_url" value={ anyStr(s, "logo_url") } placeholder="URL atau /uploads/..."/>
+			if anyStr(s, "logo_url") != "" {
+				<img src={ anyStr(s, "logo_url") } alt="logo" style="max-height:64px;margin-top:.5rem;background:#f8fafc;padding:8px;border-radius:6px"/>
+			}
+		</div>
+		<div class="field" style="grid-column:1/-1">
+			<label>Favicon URL</label>
+			<input class="input" name="favicon_url" value={ anyStr(s, "favicon_url") } placeholder="URL atau /uploads/..."/>
+		</div>
+	</div>
+	<hr style="margin:1rem 0;border:none;border-top:1px solid var(--c-line)"/>
+	<h3 class="h3">Upload Logo / Favicon</h3>
+	<p class="muted" style="font-size:.85rem">Upload file di sini untuk mendapatkan URL otomatis. Setelah upload, copy URL ke field di atas dan simpan.</p>
+	<form method="POST" action="/admin/upload" enctype="multipart/form-data" target="_blank">
+		<input type="hidden" name="csrf_token" value={ csrf }/>
+		<input type="hidden" name="prefix" value="store"/>
+		<input class="input" type="file" name="file" accept="image/*"/>
+		<button class="btn btn-sm" type="submit" style="margin-top:.5rem">Upload</button>
+	</form>
+}
+
+templ settingsSEO(s map[string]any) {
+	<div class="form-grid">
+		<div class="field"><label>Title Pattern</label><input class="input" name="title_pattern" value={ anyStr(s, "title_pattern") } placeholder="%s | Toko"/></div>
+		<div class="field"><label>Default Title</label><input class="input" name="default_title" value={ anyStr(s, "default_title") }/></div>
+		<div class="field" style="grid-column:1/-1"><label>Default Description</label><input class="input" name="default_desc" value={ anyStr(s, "default_desc") }/></div>
+		<div class="field" style="grid-column:1/-1"><label>Default OG Image URL</label><input class="input" name="default_og_image" value={ anyStr(s, "default_og_image") }/></div>
+		<div class="field"><label>Google Search Console Verification</label><input class="input" name="gsc_verification" value={ anyStr(s, "gsc_verification") }/></div>
+		<div class="field"><label>Bing Verification</label><input class="input" name="bing_verification" value={ anyStr(s, "bing_verification") }/></div>
+		<div class="field" style="grid-column:1/-1"><label>Robots Extra</label><textarea class="input" name="robots_extra" rows="3">{ anyStr(s, "robots_extra") }</textarea></div>
+		<label><input type="checkbox" name="ai_overview_optimized" checked?={ anyBool(s, "ai_overview_optimized") }/> Optimasi untuk AI Overview (FAQ schema, headings clean)</label>
+	</div>
+}
+
+templ settingsMarketing(s map[string]any) {
+	<div class="form-grid">
+		<div class="field"><label>Meta Pixel ID</label><input class="input" name="meta_pixel_id" value={ anyStr(s, "meta_pixel_id") }/></div>
+		<div class="field"><label>Meta CAPI Access Token</label><input class="input" name="meta_capi_token" value={ anyStr(s, "meta_capi_token") }/></div>
+		<div class="field"><label>Meta Test Event Code</label><input class="input" name="meta_test_event_code" value={ anyStr(s, "meta_test_event_code") }/></div>
+		<div class="field"><label>GA4 Measurement ID</label><input class="input" name="ga4_id" value={ anyStr(s, "ga4_id") } placeholder="G-XXXXX"/></div>
+		<div class="field"><label>GA4 API Secret (MP)</label><input class="input" name="ga4_api_secret" value={ anyStr(s, "ga4_api_secret") }/></div>
+		<div class="field"><label>Google Tag Manager ID</label><input class="input" name="gtm_id" value={ anyStr(s, "gtm_id") } placeholder="GTM-XXXX"/></div>
+		<div class="field"><label>TikTok Pixel ID</label><input class="input" name="tiktok_pixel_id" value={ anyStr(s, "tiktok_pixel_id") }/></div>
+		<div class="field"><label>Google Ads ID</label><input class="input" name="google_ads_id" value={ anyStr(s, "google_ads_id") } placeholder="AW-XXXX"/></div>
+		<div class="field"><label>Google Ads Conversion Label</label><input class="input" name="google_ads_label" value={ anyStr(s, "google_ads_label") }/></div>
+	</div>
+}
+
+templ settingsGMC(s map[string]any) {
+	<div class="form-grid">
+		<div class="field"><label>Merchant Center ID</label><input class="input" name="merchant_id" value={ anyStr(s, "merchant_id") }/></div>
+		<div class="field"><label>Format Feed</label>
+			<select class="select" name="feed_format">
+				<option value="xml" selected?={ anyStr(s, "feed_format") == "xml" }>XML</option>
+				<option value="csv" selected?={ anyStr(s, "feed_format") == "csv" }>CSV</option>
+			</select>
+		</div>
+		<div class="field"><label>Target Country</label><input class="input" name="target_country" value={ anyStr(s, "target_country") } placeholder="ID"/></div>
+		<div class="field"><label>Content Language</label><input class="input" name="content_language" value={ anyStr(s, "content_language") } placeholder="id"/></div>
+		<label><input type="checkbox" name="feed_enabled" checked?={ anyBool(s, "feed_enabled") }/> Feed aktif (akan disajikan di /feeds/gmc.xml)</label>
+		<label><input type="checkbox" name="auto_disable_oos" checked?={ anyBool(s, "auto_disable_oos") }/> Auto-skip produk stok habis</label>
+	</div>
+}
+
+templ settingsXendit(s map[string]any) {
+	<div class="form-grid">
+		<div class="field"><label>Secret Key</label><input class="input" name="secret_key" value={ anyStr(s, "secret_key") } placeholder="xnd_..."/></div>
+		<div class="field"><label>Public Key</label><input class="input" name="public_key" value={ anyStr(s, "public_key") }/></div>
+		<div class="field" style="grid-column:1/-1"><label>Webhook Verification Token</label><input class="input" name="webhook_token" value={ anyStr(s, "webhook_token") }/><small class="muted">Dapatkan dari Xendit dashboard. Webhook URL: <code>/webhooks/xendit</code></small></div>
+	</div>
+}
+
+templ settingsBiteship(s map[string]any) {
+	<div class="form-grid">
+		<div class="field" style="grid-column:1/-1"><label>API Key</label><input class="input" name="api_key" value={ anyStr(s, "api_key") } placeholder="biteship-test-..."/></div>
+		<div class="field"><label>Origin Area ID</label><input class="input" name="origin_area_id" value={ anyStr(s, "origin_area_id") }/></div>
+		<div class="field"><label>Origin Postal Code</label><input class="input" name="origin_postal_code" value={ anyStr(s, "origin_postal_code") }/></div>
+		<div class="field" style="grid-column:1/-1"><label>Couriers (comma-separated)</label><input class="input" name="couriers" value={ anyStr(s, "couriers") } placeholder="jne,jnt,sicepat,anteraja,gojek,grab"/></div>
+	</div>
+}
+
+templ settingsShipping(s map[string]any) {
+	<div class="form-grid">
+		<div class="field"><label>Free Shipping Threshold (Rp)</label><input class="input" type="number" name="free_shipping_threshold" value={ anyStr(s, "free_shipping_threshold") }/></div>
+		<div class="field"><label>Flat Rate Fallback (Rp)</label><input class="input" type="number" name="flat_rate_fallback" value={ anyStr(s, "flat_rate_fallback") }/></div>
+	</div>
+}
+
+templ settingsMailer(s map[string]any) {
+	<div class="form-grid">
+		<div class="field"><label>SMTP Host</label><input class="input" name="smtp_host" value={ anyStr(s, "smtp_host") }/></div>
+		<div class="field"><label>SMTP Port</label><input class="input" type="number" name="smtp_port" value={ anyStr(s, "smtp_port") }/></div>
+		<div class="field"><label>SMTP User</label><input class="input" name="smtp_user" value={ anyStr(s, "smtp_user") }/></div>
+		<div class="field"><label>SMTP Pass</label><input class="input" type="password" name="smtp_pass" value={ anyStr(s, "smtp_pass") }/></div>
+		<div class="field"><label>From Email</label><input class="input" type="email" name="from_email" value={ anyStr(s, "from_email") }/></div>
+		<div class="field"><label>From Name</label><input class="input" name="from_name" value={ anyStr(s, "from_name") }/></div>
+	</div>
+}
+
+templ settingsTax(s map[string]any) {
+	<div class="form-grid">
+		<div class="field"><label>PPN %</label><input class="input" type="number" step="0.01" name="ppn_pct" value={ anyStr(s, "ppn_pct") }/></div>
+		<div class="field"><label>Invoice Prefix</label><input class="input" name="invoice_prefix" value={ anyStr(s, "invoice_prefix") }/></div>
+		<div class="field" style="grid-column:1/-1"><label>NPWP Toko</label><input class="input" name="invoice_npwp" value={ anyStr(s, "invoice_npwp") }/></div>
+	</div>
+}
+
+templ settingsReseller(s map[string]any) {
+	<div class="form-grid">
+		<label><input type="checkbox" name="registration_open" checked?={ anyBool(s, "registration_open") }/> Pendaftaran reseller dibuka</label>
+		<label><input type="checkbox" name="auto_approve" checked?={ anyBool(s, "auto_approve") }/> Auto-approve (tanpa review admin)</label>
+		<label><input type="checkbox" name="require_npwp" checked?={ anyBool(s, "require_npwp") }/> Wajib NPWP</label>
+		<label><input type="checkbox" name="require_ktp" checked?={ anyBool(s, "require_ktp") }/> Wajib KTP</label>
+		<div class="field"><label>Min. Order Pertama (Rp)</label><input class="input" type="number" name="min_first_order" value={ anyStr(s, "min_first_order") }/></div>
+	</div>
+}

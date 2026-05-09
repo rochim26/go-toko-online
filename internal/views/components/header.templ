@@ -1,0 +1,102 @@
+package components
+
+import "github.com/tokoonline/app/internal/views/viewdata"
+
+templ Header(d viewdata.PageData) {
+	<div class="topbar">
+		<div class="container flex between">
+			<div class="muted">Belanja online di { d.Store.Name }</div>
+			<div class="flex gap-sm">
+				if d.Store.WANumber != "" {
+					<a href={ templ.URL("https://wa.me/" + onlyDigits(d.Store.WANumber)) } target="_blank" rel="noopener">WhatsApp</a>
+				}
+				if d.IsLoggedIn {
+					<a href={ accountURL(d.UserRole) }>{ d.UserName }</a>
+					<a href="/logout">Keluar</a>
+				} else {
+					<a href="/login">Masuk</a>
+					<a href="/register">Daftar</a>
+				}
+				<a href="/reseller/login">Portal Reseller</a>
+			</div>
+		</div>
+	</div>
+	<header class="header">
+		<div class="container header-inner">
+			<a class="logo" href="/">{ d.Store.Name }</a>
+			<form class="search" action="/search" method="GET" role="search">
+				<input class="input" type="search" name="q" placeholder="Cari produk…" aria-label="Cari produk"/>
+			</form>
+			<nav class="nav">
+				<a href="/c/semua" class="muted">Katalog</a>
+				<a href="/blog" class="muted">Blog</a>
+				<a href="/cart" class="cart-btn" aria-label="Keranjang">
+					Keranjang
+					<span id="cart-count" class="cart-count" style={ countStyle(d.CartCount) }>{ countText(d.CartCount) }</span>
+				</a>
+			</nav>
+		</div>
+	</header>
+}
+
+func accountURL(role string) templ.SafeURL {
+	switch role {
+	case "admin", "staff":
+		return "/admin"
+	case "reseller":
+		return "/reseller"
+	default:
+		return "/account"
+	}
+}
+
+func onlyDigits(s string) string {
+	out := make([]byte, 0, len(s))
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		if c >= '0' && c <= '9' {
+			out = append(out, c)
+		}
+	}
+	return string(out)
+}
+
+func countText(n int) string {
+	if n <= 0 {
+		return "0"
+	}
+	if n > 99 {
+		return "99+"
+	}
+	return itoa(n)
+}
+
+func countStyle(n int) string {
+	if n <= 0 {
+		return "display:none"
+	}
+	return ""
+}
+
+func itoa(n int) string {
+	if n == 0 {
+		return "0"
+	}
+	neg := false
+	if n < 0 {
+		neg = true
+		n = -n
+	}
+	var b [20]byte
+	i := len(b)
+	for n > 0 {
+		i--
+		b[i] = byte('0' + n%10)
+		n /= 10
+	}
+	if neg {
+		i--
+		b[i] = '-'
+	}
+	return string(b[i:])
+}
