@@ -267,6 +267,14 @@ func (h *Handler) APICartRemove(w http.ResponseWriter, r *http.Request) {
 
 // --- Pages / Blog ---
 
+func (h *Handler) Guides(w http.ResponseWriter, r *http.Request) {
+	d := h.PageData(r)
+	d.URL = "/panduan"
+	d.Title = "Panduan Penggunaan"
+	d.Description = "Panduan PDF untuk pembeli, reseller, dan admin"
+	httpx.Render(w, r, views.Guides(d))
+}
+
 func (h *Handler) Page(w http.ResponseWriter, r *http.Request) {
 	slug := chi.URLParam(r, "slug")
 	p := &models.Page{}

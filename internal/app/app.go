@@ -170,6 +170,7 @@ func (a *App) Routes() http.Handler {
 		r.Get("/sitemap.xml", publicH.Sitemap)
 		r.Get("/feeds/gmc.xml", gmcH.Feed)
 		r.Get("/page/{slug}", publicH.Page)
+		r.Get("/panduan", publicH.Guides)
 
 		// API
 		r.Post("/api/cart/add", publicH.APICartAdd)

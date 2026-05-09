@@ -1,0 +1,61 @@
+package public
+
+import "github.com/tokoonline/app/internal/views/layouts"
+
+templ Guides(d layouts.PageData) {
+	@layouts.Public(d) {
+		<nav class="breadcrumb">
+			<a href="/">Beranda</a> / <span>Panduan Penggunaan</span>
+		</nav>
+		<div style="max-width:48rem;margin-bottom:2rem">
+			<h1 class="h1">Panduan Penggunaan</h1>
+			<p class="muted">Pilih panduan sesuai peran Anda. Semua dalam format PDF, dapat diunduh & dicetak. Klik untuk membuka di tab baru.</p>
+		</div>
+		<div class="grid grid-3">
+			@guideCard("/static/guides/panduan-pembeli.pdf", "Panduan Pembeli", "Cara daftar, belanja, checkout, dan tracking pesanan.", "pembeli", "fce7f3", "be185d")
+			@guideCard("/static/guides/panduan-reseller.pdf", "Panduan Reseller", "Tier, harga grosir, bulk order, Term of Payment, dan PO.", "reseller", "e0e7ff", "4338ca")
+			@guideCard("/static/guides/panduan-admin.pdf", "Panduan Admin", "Kelola produk, pesanan, reseller, settings, dan SEO.", "admin", "fef3c7", "b45309")
+		</div>
+		<div class="card" style="margin-top:2rem;background:linear-gradient(135deg,#fef2f2,#fff7ed);border-color:#fed7aa">
+			<h3 class="h3" style="margin-top:0">Butuh bantuan langsung?</h3>
+			<p class="muted" style="margin-bottom:.75rem">Tim CS kami siap membantu Senin–Sabtu, 09:00–18:00 WIB.</p>
+			if d.Store.WANumber != "" {
+				<a class="btn btn-accent" target="_blank" rel="noopener" href={ templ.URL("https://wa.me/" + onlyDigitsGuides(d.Store.WANumber)) }>
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.52 3.48A11.78 11.78 0 0 0 12 0a12 12 0 0 0-10.4 17.95L0 24l6.27-1.6A12 12 0 1 0 20.52 3.48zM12 22a10 10 0 0 1-5.13-1.41l-.36-.21-3.72.95.99-3.62-.24-.37A10 10 0 1 1 12 22z"/></svg>
+					Chat via WhatsApp
+				</a>
+			}
+			<a class="btn btn-outline" href="/p/faq" style="margin-left:.5rem">Lihat FAQ</a>
+		</div>
+	}
+}
+
+templ guideCard(href, title, desc, role, bg, fg string) {
+	<a class="card" href={ templ.URL(href) } target="_blank" rel="noopener" style={ "border-color:#" + bg } >
+		<div style={ "width:48px;height:48px;border-radius:.6rem;display:flex;align-items:center;justify-content:center;background:#" + bg + ";color:#" + fg + ";margin-bottom:.85rem" }>
+			<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+				<polyline points="14 2 14 8 20 8"/>
+				<line x1="9" y1="13" x2="15" y2="13"/>
+				<line x1="9" y1="17" x2="15" y2="17"/>
+			</svg>
+		</div>
+		<h3 style="margin:0 0 .35rem;font-size:1.05rem;font-weight:700">{ title }</h3>
+		<p class="muted" style="margin:0 0 .85rem;font-size:.88rem;line-height:1.5">{ desc }</p>
+		<div class="flex between" style="font-size:.78rem">
+			<span class="badge">PDF · Untuk { role }</span>
+			<span style={ "color:#" + fg + ";font-weight:600" }>Unduh →</span>
+		</div>
+	</a>
+}
+
+func onlyDigitsGuides(s string) string {
+	out := make([]byte, 0, len(s))
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		if c >= '0' && c <= '9' {
+			out = append(out, c)
+		}
+	}
+	return string(out)
+}
