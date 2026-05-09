@@ -221,6 +221,22 @@ type Order struct {
 	Items              []OrderItem
 }
 
+type CustomerAddress struct {
+	ID         uuid.UUID
+	UserID     uuid.UUID
+	Label      string
+	Recipient  string
+	Phone      string
+	Address    string
+	Province   string
+	City       string
+	District   *string
+	PostalCode string
+	AreaID     *string
+	IsDefault  bool
+	CreatedAt  time.Time
+}
+
 type Page struct {
 	ID          uuid.UUID
 	Slug        string

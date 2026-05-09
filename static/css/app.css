@@ -178,6 +178,61 @@ tr:hover td{background:#fafbfc}
 /* Sidebar badge */
 .sidebar a .nav-badge{display:inline-flex;align-items:center;justify-content:center;background:var(--c-accent);color:#fff;border-radius:99px;font-size:.65rem;font-weight:600;padding:1px 6px;min-width:18px;margin-left:auto;margin-right:0;float:right}
 
+/* Address autocomplete dropdown */
+.area-wrap{position:relative}
+.area-results{
+  position:absolute;left:0;right:0;top:100%;
+  background:#fff;border:1px solid var(--c-line);border-bottom-left-radius:8px;border-bottom-right-radius:8px;
+  max-height:280px;overflow-y:auto;z-index:50;
+  box-shadow:0 4px 14px rgba(0,0,0,.08);
+  margin-top:-1px
+}
+.area-results:empty{display:none}
+.area-item{
+  display:block;width:100%;padding:.6rem .8rem;
+  border:none;border-bottom:1px solid #f1f5f9;
+  background:transparent;text-align:left;cursor:pointer;
+  font:inherit;font-size:.9rem;
+  color:var(--c-fg)
+}
+.area-item:hover,.area-item:focus{background:#f1f5f9;outline:none}
+.area-item:last-child{border-bottom:none}
+.area-item-name{font-weight:500}
+.area-item-meta{font-size:.75rem;color:var(--c-muted);margin-top:.15rem}
+.area-selected{
+  background:#dcfce7;color:#166534;
+  border:1px solid #bbf7d0;border-radius:6px;
+  padding:.5rem .75rem;font-size:.9rem;
+  display:flex;justify-content:space-between;align-items:center
+}
+.area-selected .clear{
+  background:transparent;border:none;color:#166534;cursor:pointer;font-size:1.1rem
+}
+
+/* Account dashboard cards */
+.account-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem}
+.account-stat{padding:1rem;background:#fff;border:1px solid var(--c-line);border-radius:.75rem}
+.account-stat .num{font-size:1.5rem;font-weight:700;margin-top:.25rem}
+
+/* Address card list */
+.addr-card{position:relative;padding:.85rem 1rem;border:1px solid var(--c-line);border-radius:.5rem;background:#fff}
+.addr-card.default{border-color:#16a34a;background:#f0fdf4}
+.addr-card .label{font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.addr-card .label .pill{background:#dcfce7;color:#166534;font-size:.7rem;padding:.1rem .5rem;border-radius:99px}
+.addr-card .lines{font-size:.88rem;color:var(--c-muted);margin-top:.4rem;line-height:1.4}
+.addr-card .addr-actions{margin-top:.6rem;display:flex;gap:.4rem}
+.addr-card .addr-actions form{display:inline}
+
+/* Saved address quick-fill chips on checkout */
+.addr-chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem}
+.addr-chip{
+  border:1px solid var(--c-line);background:#fff;border-radius:99px;
+  padding:.35rem .85rem;font-size:.85rem;cursor:pointer;
+  display:inline-flex;align-items:center;gap:.35rem
+}
+.addr-chip:hover{background:var(--c-soft);border-color:var(--c-primary)}
+.addr-chip.active{background:#0f172a;color:#fff;border-color:#0f172a}
+
 /* Tooltip on hover */
 .tip{position:relative;display:inline-block;cursor:help;border-bottom:1px dotted #94a3b8}
 .tip:hover::after{

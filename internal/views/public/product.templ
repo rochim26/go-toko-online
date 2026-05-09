@@ -39,7 +39,8 @@ templ Product(d layouts.PageData, p *models.Product, variants []*models.Variant,
 				if p.ShortDesc != nil && *p.ShortDesc != "" {
 					<p>{ *p.ShortDesc }</p>
 				}
-				<form hx-post="/api/cart/add" hx-swap="none" hx-trigger="submit" hx-on::after-request="if(event.detail.successful) htmx.trigger('body','cart:updated',{count:JSON.parse(event.detail.xhr.responseText).count})">
+				<form hx-post="/api/cart/add" hx-swap="none" hx-trigger="submit"
+					hx-on::after-request="if(event.detail.successful){const r=JSON.parse(event.detail.xhr.responseText);htmx.trigger('body','cart:updated',{count:r.count});if(r.redirect){location.href=r.redirect;}}">
 					<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
 					if len(variants) > 1 {
 						<div class="field">
@@ -53,14 +54,14 @@ templ Product(d layouts.PageData, p *models.Product, variants []*models.Variant,
 					} else if len(variants) == 1 {
 						<input type="hidden" name="variant_id" value={ variants[0].ID.String() }/>
 					}
-					<div class="flex gap" style="margin-top:1rem">
+					<div class="flex gap" style="margin-top:1rem;flex-wrap:wrap">
 						<div class="qty">
 							<button type="button" onclick="this.nextElementSibling.value=Math.max(1,(parseInt(this.nextElementSibling.value)||1)-1)">-</button>
 							<input type="number" name="qty" value="1" min="1" max="999"/>
 							<button type="button" onclick="this.previousElementSibling.value=(parseInt(this.previousElementSibling.value)||1)+1">+</button>
 						</div>
-						<button class="btn btn-accent" type="submit">+ Keranjang</button>
-						<a class="btn btn-outline" href="/checkout">Beli Sekarang</a>
+						<button class="btn btn-outline" type="submit" name="action" value="add">+ Keranjang</button>
+						<button class="btn btn-accent" type="submit" name="action" value="buy">Beli Sekarang</button>
 					</div>
 				</form>
 				if d.Store.WANumber != "" {

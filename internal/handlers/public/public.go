@@ -195,8 +195,16 @@ func (h *Handler) APICartAdd(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	c, _ = h.Cart.GetOrCreate(r.Context(), middleware.SessionToken(r), uid, aud.Code)
+
+	// "Buy now" flow: client requested immediate checkout — return HX-Redirect AND
+	// JSON with redirect so both htmx-aware and bare fetch clients work.
+	resp := map[string]any{"ok": true, "count": cart.TotalQty(c)}
+	if r.FormValue("action") == "buy" {
+		resp["redirect"] = "/checkout"
+		w.Header().Set("HX-Redirect", "/checkout")
+	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]any{"ok": true, "count": cart.TotalQty(c)})
+	json.NewEncoder(w).Encode(resp)
 }
 
 func (h *Handler) APICartUpdate(w http.ResponseWriter, r *http.Request) {

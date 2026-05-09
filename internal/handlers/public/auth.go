@@ -170,13 +170,8 @@ func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	httpx.Render(w, r, views.ChangePassword(d, "", "Password berhasil diubah."))
 }
 
-// Account
-func (h *AuthHandler) Account(w http.ResponseWriter, r *http.Request) {
-	d := h.Public.PageData(r)
-	d.Title = "Akun Saya"
-	d.NoIndex = true
-	httpx.Render(w, r, views.Account(d))
-}
+// Account is now handled by AccountHandler.Home (see account.go).
+// Function kept here removed; route updated in app.go.
 
 func (h *AuthHandler) OrderHistory(w http.ResponseWriter, r *http.Request) {
 	uid, _ := r.Context().Value(middleware.UserIDKey).(uuid.UUID)

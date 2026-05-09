@@ -135,6 +135,7 @@ func (a *App) Routes() http.Handler {
 		BaseURL: a.Cfg.BaseURL, Sessions: a.Sess, Public: publicH,
 	}
 	authH := &publich.AuthHandler{Pool: a.Pool, Auth: a.Auth, Cart: a.Cart, Mailer: a.Mailer, Sessions: a.Sess, Public: publicH}
+	accountH := &publich.AccountHandler{Pool: a.Pool, Cart: a.Cart, Pricing: a.Pricing, Order: a.Order, Sessions: a.Sess, Public: publicH}
 	adminH := &admin.Handler{
 		Pool: a.Pool, Auth: a.Auth, Catalog: a.Catalog, Order: a.Order, Reseller: a.Reseller,
 		Settings: a.Settings, Sessions: a.Sess, UploadDir: a.Cfg.UploadDir, BaseURL: a.Cfg.BaseURL,
@@ -191,12 +192,21 @@ func (a *App) Routes() http.Handler {
 		// Customer area
 		r.Group(func(r chi.Router) {
 			r.Use(middleware.RequireRole("customer", "reseller", "admin", "staff"))
-			r.Get("/account", authH.Account)
+			r.Get("/account", accountH.Home)
 			r.Get("/account/orders", authH.OrderHistory)
 			r.Get("/account/orders/{code}", checkoutH.OrderShow)
 			r.Get("/account/orders/{code}/po.pdf", adminH.OrderPOPDF)
+			r.Post("/account/orders/{code}/reorder", accountH.Reorder)
 			r.Get("/account/password", authH.ShowChangePassword)
 			r.Post("/account/password", authH.ChangePassword)
+			r.Get("/account/profile", accountH.ShowProfile)
+			r.Post("/account/profile", accountH.SaveProfile)
+			r.Get("/account/addresses", accountH.Addresses)
+			r.Post("/account/addresses", accountH.AddressCreate)
+			r.Get("/account/addresses/{id}/edit", accountH.AddressEdit)
+			r.Post("/account/addresses/{id}", accountH.AddressUpdate)
+			r.Post("/account/addresses/{id}/delete", accountH.AddressDelete)
+			r.Post("/account/addresses/{id}/default", accountH.AddressMakeDefault)
 		})
 
 		// Admin

@@ -50,6 +50,7 @@ func (h *CheckoutHandler) Show(w http.ResponseWriter, r *http.Request) {
 	d.NoIndex = true
 
 	email := middleware.UserEmail(r)
+	var name, phone string
 	channel := "b2c"
 	isTOP := false
 	topDays := 0
@@ -60,14 +61,44 @@ func (h *CheckoutHandler) Show(w http.ResponseWriter, r *http.Request) {
 			topDays = aud.TopDays
 		}
 	}
+
+	// Pre-fill identity + saved addresses from logged-in user
+	var saved []views.SavedAddress
+	if uid != nil {
+		var nm, ph *string
+		_ = h.Pool.QueryRow(r.Context(), `SELECT full_name, phone FROM users WHERE id=$1`, *uid).Scan(&nm, &ph)
+		if nm != nil {
+			name = *nm
+		}
+		if ph != nil {
+			phone = *ph
+		}
+		rows, err := h.Pool.Query(r.Context(), `
+			SELECT id::text, label, recipient, phone, address, province, city,
+			       COALESCE(district,''), postal_code, COALESCE(area_id,''), is_default
+			FROM customer_addresses WHERE user_id=$1 ORDER BY is_default DESC, created_at DESC LIMIT 6`, *uid)
+		if err == nil {
+			defer rows.Close()
+			for rows.Next() {
+				var a views.SavedAddress
+				if err := rows.Scan(&a.ID, &a.Label, &a.Recipient, &a.Phone, &a.Address, &a.Province, &a.City, &a.District, &a.PostalCode, &a.AreaID, &a.IsDefault); err == nil {
+					saved = append(saved, a)
+				}
+			}
+		}
+	}
+
 	httpx.Render(w, r, views.Checkout(d, views.CheckoutData{
-		Cart:     c,
-		Subtotal: cart.Subtotal(c),
-		Weight:   cart.TotalWeightGrams(c),
-		Email:    email,
-		Channel:  channel,
-		IsTOP:    isTOP,
-		TOPDays:  topDays,
+		Cart:           c,
+		Subtotal:       cart.Subtotal(c),
+		Weight:         cart.TotalWeightGrams(c),
+		Email:          email,
+		Name:           name,
+		Phone:          phone,
+		Channel:        channel,
+		IsTOP:          isTOP,
+		TOPDays:        topDays,
+		SavedAddresses: saved,
 	}))
 }
 
@@ -140,6 +171,16 @@ func (h *CheckoutHandler) Submit(w http.ResponseWriter, r *http.Request) {
 			Qty: it.Qty, UnitPrice: it.UnitPrice,
 			ImageURL: derefPtr(it.ImageURL),
 		})
+	}
+
+	// Save the address as a "default" if user is logged in and has none yet
+	if uid != nil && address.Address != "" {
+		var n int
+		_ = h.Pool.QueryRow(r.Context(), `SELECT count(*) FROM customer_addresses WHERE user_id=$1`, *uid).Scan(&n)
+		if n == 0 {
+			_, _ = h.Pool.Exec(r.Context(), `INSERT INTO customer_addresses(user_id,label,recipient,phone,address,province,city,district,postal_code,area_id,is_default) VALUES($1,'Utama',$2,$3,$4,$5,$6,NULLIF($7,''),$8,NULLIF($9,''),TRUE)`,
+				*uid, address.Recipient, address.Phone, address.Address, address.Province, address.City, address.District, address.PostalCode, address.AreaID)
+		}
 	}
 
 	o, err := h.Order.Create(r.Context(), order.CreateInput{
@@ -245,26 +286,47 @@ func strPtr(s string) *string {
 // ---- Shipping APIs ----
 
 func (h *CheckoutHandler) AreasSearch(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	q := strings.TrimSpace(r.URL.Query().Get("q"))
 	if len(q) < 3 {
+		// Empty -> hide dropdown
 		w.Write([]byte(""))
 		return
 	}
 	areas, err := h.Biteship.SearchArea(r.Context(), q)
 	if err != nil {
-		w.Write([]byte("<div style='padding:.5rem'>Gagal: " + err.Error() + "</div>"))
+		fmt.Fprintf(w, `<div class="area-item" style="color:#991b1b">Gagal mencari: %s</div>`, htmlEscape(err.Error()))
 		return
 	}
 	if len(areas) == 0 {
-		w.Write([]byte("<div style='padding:.5rem'>Tidak ditemukan</div>"))
+		w.Write([]byte(`<div class="area-item muted">Tidak ada hasil. Coba kata kunci lain.</div>`))
 		return
 	}
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	for _, a := range areas {
-		label := a.AdminLevel3 + ", " + a.AdminLevel2 + ", " + a.AdminLevel1
-		fmt.Fprintf(w, `<button type="button" data-area="%s" data-province="%s" data-city="%s" data-district="%s" data-postal="%s" data-label="%s" style="display:block;width:100%%;text-align:left;padding:.5rem .75rem;border:none;background:transparent;border-bottom:1px solid var(--c-line);cursor:pointer">%s · %s</button>`,
-			a.ID, a.AdminLevel1, a.AdminLevel2, a.AdminLevel3, a.PostalCode, label, label, a.PostalCode)
+		label := a.AdminLevel3
+		if a.AdminLevel2 != "" {
+			label += ", " + a.AdminLevel2
+		}
+		if a.AdminLevel1 != "" {
+			label += ", " + a.AdminLevel1
+		}
+		meta := a.PostalCode
+		if a.PostalCode == "" {
+			meta = "—"
+		}
+		fmt.Fprintf(w, `<button type="button" class="area-item" data-area="%s" data-province="%s" data-city="%s" data-district="%s" data-postal="%s" data-label="%s">
+			<div class="area-item-name">%s</div>
+			<div class="area-item-meta">Kode pos: %s</div>
+		</button>`,
+			htmlEscape(a.ID), htmlEscape(a.AdminLevel1), htmlEscape(a.AdminLevel2), htmlEscape(a.AdminLevel3),
+			htmlEscape(a.PostalCode), htmlEscape(label),
+			htmlEscape(label), htmlEscape(meta))
 	}
+}
+
+func htmlEscape(s string) string {
+	r := strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", `"`, "&quot;", "'", "&#39;")
+	return r.Replace(s)
 }
 
 func (h *CheckoutHandler) Rates(w http.ResponseWriter, r *http.Request) {

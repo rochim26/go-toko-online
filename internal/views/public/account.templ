@@ -6,34 +6,389 @@ import (
 	"github.com/tokoonline/app/internal/views/layouts"
 )
 
-templ Account(d layouts.PageData) {
+// AccountSubnav is shown at the top of every /account/* page.
+templ accountNav(active string) {
+	<nav class="tabs" style="margin-bottom:1rem">
+		<a class={ tabActive("home", active) } href="/account">Ringkasan</a>
+		<a class={ tabActive("orders", active) } href="/account/orders">Pesanan</a>
+		<a class={ tabActive("addresses", active) } href="/account/addresses">Alamat</a>
+		<a class={ tabActive("profile", active) } href="/account/profile">Profil</a>
+		<a class={ tabActive("password", active) } href="/account/password">Password</a>
+		<a href="/logout">Keluar</a>
+	</nav>
+}
+
+func tabActive(want, cur string) string {
+	if want == cur {
+		return "active"
+	}
+	return ""
+}
+
+// ─── Account overview ─────────────────────────────────
+
+type AccountStats struct {
+	OrderCount   int
+	UnpaidCount  int
+	TotalSpent   float64
+	AddressCount int
+	UserName     string
+	UserEmail    string
+	UserPhone    string
+}
+
+templ AccountHome(d layouts.PageData, stats AccountStats, recent []*models.Order, addresses []*models.CustomerAddress) {
 	@layouts.Public(d) {
-		<h1 class="h1">Akun Saya</h1>
-		<div class="grid grid-3">
-			<a class="card" href="/account/orders"><h3 class="h3">Pesanan</h3><p class="muted">Lacak pesanan & status pembayaran.</p></a>
-			<a class="card" href="/account/password"><h3 class="h3">Ganti Password</h3><p class="muted">Ubah password akun secara aman.</p></a>
-			<a class="card" href="/logout"><h3 class="h3">Keluar</h3><p class="muted">Akhiri sesi & kembali ke beranda.</p></a>
+		<h1 class="h1">Halo, { firstNonEmpty(stats.UserName, "selamat datang") } 👋</h1>
+		@accountNav("home")
+		<div class="account-grid">
+			<a class="account-stat" href="/account/orders">
+				<div class="muted">Total Pesanan</div>
+				<div class="num">{ intToString(stats.OrderCount) }</div>
+				if stats.UnpaidCount > 0 {
+					<div style="font-size:.8rem;color:#92400e;margin-top:.25rem">{ intToString(stats.UnpaidCount) } belum lunas</div>
+				}
+			</a>
+			<a class="account-stat" href="/account/orders">
+				<div class="muted">Total Belanja</div>
+				<div class="num">{ httpx.IDR(stats.TotalSpent) }</div>
+			</a>
+			<a class="account-stat" href="/account/addresses">
+				<div class="muted">Alamat Tersimpan</div>
+				<div class="num">{ intToString(stats.AddressCount) }</div>
+				<div style="font-size:.8rem;color:var(--c-muted);margin-top:.25rem">Tambah/edit alamat →</div>
+			</a>
+			<a class="account-stat" href="/account/profile">
+				<div class="muted">Profil</div>
+				<div style="font-weight:600;margin-top:.25rem">{ firstNonEmpty(stats.UserName, "Belum diisi") }</div>
+				<div style="font-size:.8rem;color:var(--c-muted)">{ stats.UserEmail }</div>
+			</a>
+		</div>
+
+		<div class="grid" style="grid-template-columns:2fr 1fr;gap:1.5rem;margin-top:2rem">
+			<div>
+				<h2 class="h2">Pesanan Terakhir</h2>
+				if len(recent) == 0 {
+					<div class="card" style="text-align:center;padding:2rem">
+						<p class="muted">Belum ada pesanan.</p>
+						<a class="btn" href="/c/semua">Mulai Belanja</a>
+					</div>
+				} else {
+					<div class="card" style="padding:0">
+						<table>
+							<thead><tr><th>Kode</th><th>Tanggal</th><th>Status</th><th style="text-align:right">Total</th></tr></thead>
+							<tbody>
+								for _, o := range recent {
+									<tr>
+										<td><a href={ templ.URL("/account/orders/" + o.Code) }><code>{ o.Code }</code></a></td>
+										<td>{ httpx.DateID(o.CreatedAt) }</td>
+										<td><span class={ statusBadge(o.Status) }>{ statusLabel(o.Status) }</span></td>
+										<td style="text-align:right">{ httpx.IDR(o.GrandTotal) }</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+					<div style="margin-top:.75rem;text-align:right">
+						<a href="/account/orders" class="muted">Lihat semua →</a>
+					</div>
+				}
+			</div>
+
+			<aside>
+				<h2 class="h2">Alamat Default</h2>
+				if defaultAddr := pickDefault(addresses); defaultAddr != nil {
+					<div class="addr-card default">
+						<div class="label">{ defaultAddr.Label } <span class="pill">Default</span></div>
+						<div class="lines">
+							<strong>{ defaultAddr.Recipient }</strong> · { defaultAddr.Phone }<br/>
+							{ defaultAddr.Address }<br/>
+							{ derefStrAcc(defaultAddr.District) }, { defaultAddr.City }, { defaultAddr.Province } { defaultAddr.PostalCode }
+						</div>
+					</div>
+				} else {
+					<div class="card">
+						<p class="muted">Belum ada alamat tersimpan.</p>
+						<a class="btn btn-sm" href="/account/addresses">+ Tambah Alamat</a>
+					</div>
+				}
+				<h2 class="h2">Aksi Cepat</h2>
+				<a class="card" href="/c/semua" style="display:block;margin-bottom:.5rem;text-decoration:none">
+					<strong>🛍️ Belanja Lagi</strong>
+					<div class="muted" style="font-size:.85rem;margin-top:.25rem">Lihat semua produk</div>
+				</a>
+				<a class="card" href="/cart" style="display:block;margin-bottom:.5rem;text-decoration:none">
+					<strong>🛒 Lanjutkan ke Keranjang</strong>
+					<div class="muted" style="font-size:.85rem;margin-top:.25rem">Periksa & checkout</div>
+				</a>
+				if d.Store.WANumber != "" {
+					<a class="card" target="_blank" rel="noopener" href={ templ.URL("https://wa.me/" + onlyDigitsAcc(d.Store.WANumber)) } style="display:block;text-decoration:none">
+						<strong>💬 Chat Customer Service</strong>
+						<div class="muted" style="font-size:.85rem;margin-top:.25rem">via WhatsApp</div>
+					</a>
+				}
+			</aside>
 		</div>
 	}
 }
 
+func firstNonEmpty(a, b string) string {
+	if a != "" {
+		return a
+	}
+	return b
+}
+
+func pickDefault(addrs []*models.CustomerAddress) *models.CustomerAddress {
+	for _, a := range addrs {
+		if a.IsDefault {
+			return a
+		}
+	}
+	if len(addrs) > 0 {
+		return addrs[0]
+	}
+	return nil
+}
+
+func derefStrAcc(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
+
+func onlyDigitsAcc(s string) string {
+	out := make([]byte, 0, len(s))
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		if c >= '0' && c <= '9' {
+			out = append(out, c)
+		}
+	}
+	return string(out)
+}
+
+// ─── Profile edit ─────────────────────────────────────
+
+templ Profile(d layouts.PageData, name, phone, email, errMsg, okMsg string) {
+	@layouts.Public(d) {
+		<h1 class="h1">Profil</h1>
+		@accountNav("profile")
+		if errMsg != "" {
+			<div class="flash flash-error">{ errMsg }</div>
+		}
+		if okMsg != "" {
+			<div class="flash flash-success">{ okMsg }</div>
+		}
+		<form method="POST" action="/account/profile" class="card" style="max-width:480px">
+			<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+			<div class="field">
+				<label>Email</label>
+				<input class="input" type="email" value={ email } readonly disabled/>
+				<small class="muted">Email tidak bisa diubah. Hubungi admin jika perlu.</small>
+			</div>
+			<div class="field"><label>Nama Lengkap</label><input class="input" name="name" value={ name } required/></div>
+			<div class="field"><label>Nomor HP / WA</label><input class="input" name="phone" value={ phone } placeholder="+628..."/></div>
+			<button class="btn">Simpan</button>
+		</form>
+	}
+}
+
+// ─── Address book ─────────────────────────────────────
+
+type AddressFormData struct {
+	ID         string
+	Label      string
+	Recipient  string
+	Phone      string
+	Address    string
+	Province   string
+	City       string
+	District   string
+	PostalCode string
+	AreaID     string
+	IsDefault  bool
+	IsEdit     bool
+}
+
+templ Addresses(d layouts.PageData, list []*models.CustomerAddress, form AddressFormData, errMsg string) {
+	@layouts.Public(d) {
+		<h1 class="h1">Alamat Pengiriman</h1>
+		@accountNav("addresses")
+		if errMsg != "" {
+			<div class="flash flash-error">{ errMsg }</div>
+		}
+		<div class="grid" style="grid-template-columns:1fr 1fr;gap:1.5rem">
+			<div>
+				<h3 class="h3">
+					if form.IsEdit {
+						Edit Alamat
+					} else {
+						Tambah Alamat Baru
+					}
+				</h3>
+				<form method="POST" action={ templ.SafeURL(addressFormAction(form)) } class="card">
+					<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+					<div class="field">
+						<label>Label</label>
+						<input class="input" name="label" value={ form.Label } placeholder="Rumah, Kantor, Toko Utama..." required/>
+					</div>
+					<div class="form-grid">
+						<div class="field">
+							<label>Nama Penerima</label>
+							<input class="input" name="recipient" value={ form.Recipient } required/>
+						</div>
+						<div class="field">
+							<label>HP Penerima</label>
+							<input class="input" name="phone" value={ form.Phone } required/>
+						</div>
+					</div>
+					<div class="field area-wrap">
+						<label>Cari Kecamatan / Kota</label>
+						<input class="input" id="addr-area-q" placeholder="Ketik untuk mencari..."
+							hx-get="/api/shipping/areas"
+							hx-trigger="keyup changed delay:300ms, focus"
+							hx-target="#addr-area-results"
+							hx-include="this"
+							name="q"
+							autocomplete="off"
+							value={ form.City }/>
+						<div id="addr-area-results" class="area-results"></div>
+						<input type="hidden" name="area_id" id="addr-area-id" value={ form.AreaID }/>
+						<input type="hidden" name="province" id="addr-province" value={ form.Province }/>
+						<input type="hidden" name="city" id="addr-city" value={ form.City }/>
+						<input type="hidden" name="district" id="addr-district" value={ form.District }/>
+					</div>
+					<div class="form-grid">
+						<div class="field">
+							<label>Kode Pos</label>
+							<input class="input" name="postal_code" id="addr-postal" value={ form.PostalCode } required/>
+						</div>
+					</div>
+					<div class="field">
+						<label>Alamat Lengkap (jalan, RT/RW, patokan)</label>
+						<textarea class="input" name="address" rows="3" required>{ form.Address }</textarea>
+					</div>
+					<label><input type="checkbox" name="is_default" value="1" checked?={ form.IsDefault }/> Jadikan alamat default</label>
+					<div style="margin-top:1rem">
+						<button class="btn" type="submit">
+							if form.IsEdit {
+								Update
+							} else {
+								Simpan
+							}
+						</button>
+						if form.IsEdit {
+							<a class="btn btn-outline" href="/account/addresses">Batal</a>
+						}
+					</div>
+				</form>
+				<script>
+				(function(){
+					document.addEventListener('click', (e) => {
+						if (!e.target.closest('.area-wrap')) {
+							document.getElementById('addr-area-results').innerHTML = '';
+						}
+						const btn = e.target.closest('#addr-area-results [data-area]');
+						if (btn) {
+							const a = btn.dataset;
+							document.getElementById('addr-area-id').value = a.area;
+							document.getElementById('addr-province').value = a.province;
+							document.getElementById('addr-city').value = a.city;
+							document.getElementById('addr-district').value = a.district;
+							if (a.postal) document.getElementById('addr-postal').value = a.postal;
+							document.getElementById('addr-area-q').value = a.label;
+							document.getElementById('addr-area-results').innerHTML = '';
+						}
+					});
+				})();
+				</script>
+			</div>
+
+			<div>
+				<h3 class="h3">Alamat Tersimpan ({ intToString(len(list)) })</h3>
+				if len(list) == 0 {
+					<div class="card" style="text-align:center;padding:2rem">
+						<p class="muted">Belum ada alamat tersimpan.</p>
+					</div>
+				}
+				for _, a := range list {
+					<div class={ "addr-card", defaultClass(a) } style="margin-bottom:.75rem">
+						<div class="label">
+							{ a.Label }
+							if a.IsDefault {
+								<span class="pill">Default</span>
+							}
+						</div>
+						<div class="lines">
+							<strong>{ a.Recipient }</strong> · { a.Phone }<br/>
+							{ a.Address }<br/>
+							{ derefStrAcc(a.District) }, { a.City }, { a.Province } { a.PostalCode }
+						</div>
+						<div class="addr-actions">
+							<a class="btn btn-outline btn-sm" href={ templ.URL("/account/addresses/" + a.ID.String() + "/edit") }>Edit</a>
+							if !a.IsDefault {
+								<form method="POST" action={ templ.SafeURL("/account/addresses/" + a.ID.String() + "/default") }>
+									<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+									<button class="btn btn-outline btn-sm">Jadikan Default</button>
+								</form>
+							}
+							<form method="POST" action={ templ.SafeURL("/account/addresses/" + a.ID.String() + "/delete") } onsubmit="return confirm('Hapus alamat ini?')">
+								<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+								<button class="btn btn-outline btn-sm">Hapus</button>
+							</form>
+						</div>
+					</div>
+				}
+			</div>
+		</div>
+	}
+}
+
+func addressFormAction(f AddressFormData) string {
+	if f.IsEdit {
+		return "/account/addresses/" + f.ID
+	}
+	return "/account/addresses"
+}
+
+func defaultClass(a *models.CustomerAddress) string {
+	if a.IsDefault {
+		return "default"
+	}
+	return ""
+}
+
+// ─── Order History (kept from earlier) ────────────────
+
 templ OrderHistory(d layouts.PageData, orders []*models.Order) {
 	@layouts.Public(d) {
 		<h1 class="h1">Pesanan Saya</h1>
+		@accountNav("orders")
 		if len(orders) == 0 {
-			<div class="card"><p>Anda belum punya pesanan.</p><a class="btn" href="/c/semua">Mulai Belanja</a></div>
+			<div class="card" style="text-align:center;padding:2rem">
+				<p class="muted">Anda belum punya pesanan.</p>
+				<a class="btn" href="/c/semua">Mulai Belanja</a>
+			</div>
 		} else {
-			<div class="card">
+			<div class="card" style="padding:0">
 				<table>
-					<thead><tr><th>Kode</th><th>Tanggal</th><th>Status</th><th>Pembayaran</th><th style="text-align:right">Total</th></tr></thead>
+					<thead><tr><th>Kode</th><th>Tanggal</th><th>Status</th><th>Pembayaran</th><th style="text-align:right">Total</th><th></th></tr></thead>
 					<tbody>
 						for _, o := range orders {
 							<tr>
-								<td><a href={ templ.URL("/account/orders/" + o.Code) }>{ o.Code }</a></td>
+								<td><a href={ templ.URL("/account/orders/" + o.Code) }><code>{ o.Code }</code></a></td>
 								<td>{ httpx.DateID(o.CreatedAt) }</td>
 								<td><span class={ statusBadge(o.Status) }>{ statusLabel(o.Status) }</span></td>
 								<td><span class={ paymentBadge(o.PaymentStatus) }>{ paymentLabel(o.PaymentStatus) }</span></td>
 								<td style="text-align:right">{ httpx.IDR(o.GrandTotal) }</td>
+								<td>
+									<form method="POST" action={ templ.SafeURL("/account/orders/" + o.Code + "/reorder") } style="display:inline">
+										<input type="hidden" name="csrf_token" value={ d.CSRFToken }/>
+										<button class="btn btn-outline btn-sm" title="Beli ulang">⟳ Reorder</button>
+									</form>
+								</td>
 							</tr>
 						}
 					</tbody>
