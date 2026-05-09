@@ -289,9 +289,12 @@ func strPtr(s string) *string {
 func (h *CheckoutHandler) AreasSearch(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	q := strings.TrimSpace(r.URL.Query().Get("q"))
-	if len(q) < 3 {
-		// Empty -> hide dropdown
+	if q == "" {
 		w.Write([]byte(""))
+		return
+	}
+	if len(q) < 3 {
+		w.Write([]byte(`<div class="area-item muted" style="cursor:default">Ketik minimal 3 karakter untuk mencari…</div>`))
 		return
 	}
 	areas, err := h.Biteship.SearchArea(r.Context(), q)
@@ -304,13 +307,17 @@ func (h *CheckoutHandler) AreasSearch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	for _, a := range areas {
-		label := a.AdminLevel3
+		parts := make([]string, 0, 3)
+		if a.AdminLevel3 != "" {
+			parts = append(parts, a.AdminLevel3)
+		}
 		if a.AdminLevel2 != "" {
-			label += ", " + a.AdminLevel2
+			parts = append(parts, a.AdminLevel2)
 		}
 		if a.AdminLevel1 != "" {
-			label += ", " + a.AdminLevel1
+			parts = append(parts, a.AdminLevel1)
 		}
+		label := strings.Join(parts, ", ")
 		meta := a.PostalCode
 		if a.PostalCode == "" {
 			meta = "—"

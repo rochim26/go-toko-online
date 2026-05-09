@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -33,13 +32,37 @@ type Area struct {
 	AdminLevel1   string `json:"administrative_division_level_1_name"`
 	AdminLevel2   string `json:"administrative_division_level_2_name"`
 	AdminLevel3   string `json:"administrative_division_level_3_name"`
-	PostalCode    string `json:"postal_code"`
+	PostalCode    string `json:"-"`
+}
+
+// Biteship returns postal_code as a JSON number (e.g. 13220) for some areas
+// but as a string for others. Accept both.
+func (a *Area) UnmarshalJSON(b []byte) error {
+	type alias Area
+	raw := struct {
+		*alias
+		PostalCode json.RawMessage `json:"postal_code"`
+	}{alias: (*alias)(a)}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if len(raw.PostalCode) == 0 || string(raw.PostalCode) == "null" {
+		a.PostalCode = ""
+		return nil
+	}
+	s := string(raw.PostalCode)
+	if len(s) >= 2 && s[0] == '"' && s[len(s)-1] == '"' {
+		a.PostalCode = s[1 : len(s)-1]
+	} else {
+		a.PostalCode = s
+	}
+	return nil
 }
 
 func (b *Biteship) SearchArea(ctx context.Context, q string) ([]Area, error) {
 	cfg := b.settings.Biteship()
 	if cfg.APIKey == "" {
-		return nil, errors.New("biteship API key not configured")
+		return searchStaticAreas(q), nil
 	}
 	u := fmt.Sprintf("https://api.biteship.com/v1/maps/areas?countries=ID&input=%s&type=single", urlEscape(q))
 	req, _ := http.NewRequestWithContext(ctx, "GET", u, nil)
@@ -92,7 +115,7 @@ type Rate struct {
 func (b *Biteship) Rates(ctx context.Context, req RateRequest) ([]Rate, error) {
 	cfg := b.settings.Biteship()
 	if cfg.APIKey == "" {
-		return nil, errors.New("biteship API key not configured")
+		return staticRates(cfg.OriginPostalCode, req), nil
 	}
 	if req.OriginAreaID == "" {
 		req.OriginAreaID = cfg.OriginAreaID
