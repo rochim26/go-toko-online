@@ -2,9 +2,15 @@ package layouts
 
 templ Admin(d PageData, active string) {
 	@Base(d) {
+		<div class="drawer-backdrop" onclick="document.body.classList.remove('drawer-open')"></div>
 		<div class="layout">
-			<aside class="sidebar">
-				<div style="padding:.75rem 1.25rem;font-weight:700;color:#fff">Admin · { d.Store.Name }</div>
+			<aside class="sidebar" id="admin-sidebar">
+				<div style="padding:.75rem 1.25rem;font-weight:700;color:#fff;display:flex;justify-content:space-between;align-items:center">
+					<span>Admin · { d.Store.Name }</span>
+					<button type="button" class="drawer-toggle" style="display:inline-flex;background:transparent;border-color:rgba(255,255,255,.2)" onclick="document.body.classList.remove('drawer-open')" aria-label="Close menu">
+						<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
+					</button>
+				</div>
 				<h3>Toko</h3>
 				<a href="/admin" class={ activeClass(active, "dashboard") } data-tour="dashboard" data-tour-order="1" data-tour-title="Dashboard" data-tour-text="Halaman ini menampilkan ringkasan pesanan, omzet, reseller pending, dan stok menipis.">Dashboard</a>
 				<a href="/admin/orders" class={ activeClass(active, "orders") } data-tour="orders" data-tour-order="3" data-tour-title="Pesanan" data-tour-text="Kelola semua order: konfirmasi pembayaran, set status (dikemas/dikirim), input nomor resi. Saat status diset 'Dikirim', email otomatis terkirim ke pelanggan.">Pesanan</a>
@@ -34,6 +40,9 @@ templ Admin(d PageData, active string) {
 				<a href="/logout">Keluar</a>
 			</aside>
 			<main class="main" data-tour="main" data-tour-order="0" data-tour-title="Selamat datang di Admin Toko MDT 👋" data-tour-text="Tour singkat ini akan memandu Anda melihat fitur utama. Anda bisa lewati kapan saja dan ulangi via menu 'Ulangi Tutorial' di sidebar bawah.">
+				<button type="button" class="drawer-toggle" onclick="document.body.classList.add('drawer-open')" aria-label="Open menu">
+					<svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+				</button>
 				if !d.OnboardingDone {
 					@templ.Raw(`<script>window.__mdt_tour=true;window.__mdt_tour_csrf="` + d.CSRFToken + `";</script>`)
 					<script src="/static/js/tour.js" defer></script>

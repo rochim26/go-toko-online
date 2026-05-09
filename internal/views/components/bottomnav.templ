@@ -1,0 +1,86 @@
+package components
+
+import "github.com/tokoonline/app/internal/views/viewdata"
+
+// Five-icon bottom nav for mobile only. Hidden on desktop via CSS.
+// Active state should be set by caller via `active` arg.
+templ BottomNav(d viewdata.PageData, active string) {
+	<nav class="bottomnav" role="navigation" aria-label="Main">
+		<a href="/" class={ activeIf("home", active) }>
+			<span class="icon-wrap">
+				<svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9"/><path d="M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10"/></svg>
+			</span>
+			Beranda
+		</a>
+		<a href="/c/semua" class={ activeIf("catalog", active) }>
+			<span class="icon-wrap">
+				<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+			</span>
+			Katalog
+		</a>
+		<a href="/cart" class={ activeIf("cart", active) }>
+			<span class="icon-wrap">
+				<svg viewBox="0 0 24 24"><path d="M3 3h2l3 12h12l3-9H6"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>
+				if d.CartCount > 0 {
+					<span class="pill">{ countLabel(d.CartCount) }</span>
+				}
+			</span>
+			Keranjang
+		</a>
+		<a href={ accountURLForBottomNav(d.UserRole) } class={ activeIf("account", active) }>
+			<span class="icon-wrap">
+				<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+			</span>
+			Akun
+		</a>
+		<a href="/search" class={ activeIf("search", active) }>
+			<span class="icon-wrap">
+				<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+			</span>
+			Cari
+		</a>
+	</nav>
+}
+
+func activeIf(want, cur string) string {
+	if want == cur {
+		return "active"
+	}
+	return ""
+}
+
+func countLabel(n int) string {
+	if n <= 0 {
+		return ""
+	}
+	if n > 99 {
+		return "99+"
+	}
+	return itoaSm(n)
+}
+
+func itoaSm(n int) string {
+	if n == 0 {
+		return "0"
+	}
+	var b [12]byte
+	i := len(b)
+	for n > 0 {
+		i--
+		b[i] = byte('0' + n%10)
+		n /= 10
+	}
+	return string(b[i:])
+}
+
+func accountURLForBottomNav(role string) templ.SafeURL {
+	switch role {
+	case "admin", "staff":
+		return "/admin"
+	case "reseller":
+		return "/reseller"
+	case "customer":
+		return "/account"
+	}
+	return "/login"
+}

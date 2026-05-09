@@ -2,6 +2,16 @@ package components
 
 import "github.com/tokoonline/app/internal/views/viewdata"
 
+func accountURLForHeader(role string) templ.SafeURL {
+	switch role {
+	case "admin", "staff":
+		return "/admin"
+	case "reseller":
+		return "/reseller"
+	}
+	return "/account"
+}
+
 templ Header(d viewdata.PageData) {
 	<div class="topbar">
 		<div class="container flex between">
@@ -11,7 +21,13 @@ templ Header(d viewdata.PageData) {
 					<a href={ templ.URL("https://wa.me/" + onlyDigits(d.Store.WANumber)) } target="_blank" rel="noopener">WhatsApp</a>
 				}
 				if d.IsLoggedIn {
-					<a href={ accountURL(d.UserRole) }>{ d.UserName }</a>
+					<a href={ accountURLForHeader(d.UserRole) }>
+						if d.UserName != "" {
+							{ d.UserName }
+						} else {
+							Akun
+						}
+					</a>
 					<a href="/logout">Keluar</a>
 				} else {
 					<a href="/login">Masuk</a>
@@ -28,26 +44,16 @@ templ Header(d viewdata.PageData) {
 				<input class="input" type="search" name="q" placeholder="Cari produk…" aria-label="Cari produk"/>
 			</form>
 			<nav class="nav">
-				<a href="/c/semua" class="muted">Katalog</a>
-				<a href="/blog" class="muted">Blog</a>
+				<a href="/c/semua" class="nav-link hide-mobile">Katalog</a>
+				<a href="/blog" class="nav-link hide-mobile">Blog</a>
 				<a href="/cart" class="cart-btn" aria-label="Keranjang">
-					Keranjang
+					<svg style="width:18px;height:18px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h2l3 12h12l3-9H6"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>
+					<span class="hide-mobile">Keranjang</span>
 					<span id="cart-count" class="cart-count" style={ countStyle(d.CartCount) }>{ countText(d.CartCount) }</span>
 				</a>
 			</nav>
 		</div>
 	</header>
-}
-
-func accountURL(role string) templ.SafeURL {
-	switch role {
-	case "admin", "staff":
-		return "/admin"
-	case "reseller":
-		return "/reseller"
-	default:
-		return "/account"
-	}
 }
 
 func onlyDigits(s string) string {

@@ -43,20 +43,20 @@ func Reseller(d PageData, active string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"layout\"><aside class=\"sidebar\"><div style=\"padding:.75rem 1.25rem;font-weight:700;color:#fff\">Reseller · ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"drawer-backdrop\" onclick=\"document.body.classList.remove('drawer-open')\"></div><div class=\"layout\"><aside class=\"sidebar\"><div style=\"padding:.75rem 1.25rem;font-weight:700;color:#fff;display:flex;justify-content:space-between;align-items:center\"><span>Reseller · ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(d.Store.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/layouts/reseller.templ`, Line: 9, Col: 93}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/layouts/reseller.templ`, Line: 11, Col: 37}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</span> <button type=\"button\" class=\"drawer-toggle\" style=\"display:inline-flex;background:transparent;border-color:rgba(255,255,255,.2)\" onclick=\"document.body.classList.remove('drawer-open')\" aria-label=\"Close menu\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#fff\" stroke-width=\"2\" stroke-linecap=\"round\"><path d=\"M6 6l12 12M6 18L18 6\"></path></svg></button></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -210,7 +210,7 @@ func Reseller(d PageData, active string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\">Profil</a> <a href=\"/account/password\">Ganti Password</a> <a href=\"/logout\">Keluar</a></aside><main class=\"main\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\">Profil</a> <a href=\"/account/password\">Ganti Password</a> <a href=\"/logout\">Keluar</a></aside><main class=\"main\"><button type=\"button\" class=\"drawer-toggle\" onclick=\"document.body.classList.add('drawer-open')\" aria-label=\"Open menu\"><svg viewBox=\"0 0 24 24\"><path d=\"M3 6h18M3 12h18M3 18h18\"></path></svg></button>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

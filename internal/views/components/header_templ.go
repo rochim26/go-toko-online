@@ -10,6 +10,16 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import "github.com/tokoonline/app/internal/views/viewdata"
 
+func accountURLForHeader(role string) templ.SafeURL {
+	switch role {
+	case "admin", "staff":
+		return "/admin"
+	case "reseller":
+		return "/reseller"
+	}
+	return "/account"
+}
+
 func Header(d viewdata.PageData) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -38,7 +48,7 @@ func Header(d viewdata.PageData) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(d.Store.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/header.templ`, Line: 8, Col: 54}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/header.templ`, Line: 18, Col: 54}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -56,7 +66,7 @@ func Header(d viewdata.PageData) templ.Component {
 			var templ_7745c5c3_Var3 templ.SafeURL
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL("https://wa.me/" + onlyDigits(d.Store.WANumber)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/header.templ`, Line: 11, Col: 73}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/header.templ`, Line: 21, Col: 73}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -73,9 +83,9 @@ func Header(d viewdata.PageData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 templ.SafeURL
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinURLErrs(accountURL(d.UserRole))
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinURLErrs(accountURLForHeader(d.UserRole))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/header.templ`, Line: 14, Col: 37}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/header.templ`, Line: 24, Col: 46}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -85,81 +95,77 @@ func Header(d viewdata.PageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(d.UserName)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/header.templ`, Line: 14, Col: 52}
+			if d.UserName != "" {
+				var templ_7745c5c3_Var5 string
+				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(d.UserName)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/header.templ`, Line: 26, Col: 19}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "Akun")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</a> <a href=\"/logout\">Keluar</a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</a> <a href=\"/logout\">Keluar</a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<a href=\"/login\">Masuk</a> <a href=\"/register\">Daftar</a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<a href=\"/login\">Masuk</a> <a href=\"/register\">Daftar</a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<a href=\"/reseller/login\">Portal Reseller</a></div></div></div><header class=\"header\"><div class=\"container header-inner\"><a class=\"logo\" href=\"/\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<a href=\"/reseller/login\">Portal Reseller</a></div></div></div><header class=\"header\"><div class=\"container header-inner\"><a class=\"logo\" href=\"/\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(d.Store.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/header.templ`, Line: 26, Col: 42}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/header.templ`, Line: 42, Col: 42}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</a><form class=\"search\" action=\"/search\" method=\"GET\" role=\"search\"><input class=\"input\" type=\"search\" name=\"q\" placeholder=\"Cari produk…\" aria-label=\"Cari produk\"></form><nav class=\"nav\"><a href=\"/c/semua\" class=\"muted\">Katalog</a> <a href=\"/blog\" class=\"muted\">Blog</a> <a href=\"/cart\" class=\"cart-btn\" aria-label=\"Keranjang\">Keranjang <span id=\"cart-count\" class=\"cart-count\" style=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</a><form class=\"search\" action=\"/search\" method=\"GET\" role=\"search\"><input class=\"input\" type=\"search\" name=\"q\" placeholder=\"Cari produk…\" aria-label=\"Cari produk\"></form><nav class=\"nav\"><a href=\"/c/semua\" class=\"nav-link hide-mobile\">Katalog</a> <a href=\"/blog\" class=\"nav-link hide-mobile\">Blog</a> <a href=\"/cart\" class=\"cart-btn\" aria-label=\"Keranjang\"><svg style=\"width:18px;height:18px\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 3h2l3 12h12l3-9H6\"></path><circle cx=\"9\" cy=\"20\" r=\"1.5\"></circle><circle cx=\"18\" cy=\"20\" r=\"1.5\"></circle></svg> <span class=\"hide-mobile\">Keranjang</span> <span id=\"cart-count\" class=\"cart-count\" style=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(countStyle(d.CartCount))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/header.templ`, Line: 35, Col: 77}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/header.templ`, Line: 52, Col: 77}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(countText(d.CartCount))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/header.templ`, Line: 35, Col: 104}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/components/header.templ`, Line: 52, Col: 104}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</span></a></nav></div></header>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</span></a></nav></div></header>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		return nil
 	})
-}
-
-func accountURL(role string) templ.SafeURL {
-	switch role {
-	case "admin", "staff":
-		return "/admin"
-	case "reseller":
-		return "/reseller"
-	default:
-		return "/account"
-	}
 }
 
 func onlyDigits(s string) string {

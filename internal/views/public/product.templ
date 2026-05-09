@@ -83,6 +83,12 @@ templ Product(d layouts.PageData, p *models.Product, variants []*models.Variant,
 				@templ.Raw(*p.Description)
 			</div>
 		}
+		<!-- Mobile-only sticky CTA -->
+		<div class="sticky-cta">
+			<div class="price">{ httpx.IDR(defaultPrice) }</div>
+			<button class="btn btn-outline" type="button" onclick="document.querySelector('form[hx-post=&quot;/api/cart/add&quot;] [name=&quot;action&quot;][value=&quot;add&quot;]').click()">+ Keranjang</button>
+			<button class="btn btn-accent" type="button" onclick="document.querySelector('form[hx-post=&quot;/api/cart/add&quot;] [name=&quot;action&quot;][value=&quot;buy&quot;]').click()">Beli Sekarang</button>
+		</div>
 		if len(p.FAQs) > 0 {
 			<h2 class="h2">Pertanyaan Umum</h2>
 			<div class="card">

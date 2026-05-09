@@ -2,6 +2,8 @@ package layouts
 
 import "github.com/tokoonline/app/internal/views/components"
 
+// Public renders header + main + footer + mobile bottom nav.
+// Caller can pass a `bottomNavActive` via PageData.BodyClass field if needed.
 templ Public(d PageData) {
 	@Base(d) {
 		@components.Header(d)
@@ -9,5 +11,6 @@ templ Public(d PageData) {
 			{ children... }
 		</main>
 		@components.Footer(d)
+		@components.BottomNav(d, d.BodyClass)
 	}
 }

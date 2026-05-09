@@ -1,4 +1,21 @@
-// HTMX is loaded separately. This file glues client-side tracking.
+// HTMX is loaded separately. This file glues client-side tracking + UI.
+
+// ── Toast / snackbar ─────────────────────────────────────
+window.toast = function (msg, kind = '', ms = 2200) {
+  let wrap = document.querySelector('.toast-wrap');
+  if (!wrap) {
+    wrap = document.createElement('div');
+    wrap.className = 'toast-wrap';
+    document.body.appendChild(wrap);
+  }
+  const t = document.createElement('div');
+  t.className = 'toast ' + kind;
+  t.textContent = msg;
+  wrap.appendChild(t);
+  setTimeout(() => t.classList.add('fading'), ms - 180);
+  setTimeout(() => t.remove(), ms);
+};
+
 (function(){
   // Persist UTM on first visit
   try {
@@ -31,13 +48,46 @@
     });
   }
 
-  // Cart count update via HTMX events
+  // Cart count update via HTMX events + bottom-nav badge sync
   document.body.addEventListener('cart:updated', (e) => {
     const cnt = (e.detail||{}).count;
     const el = document.getElementById('cart-count');
     if (el && typeof cnt === 'number') {
-      el.textContent = cnt;
+      el.textContent = cnt > 99 ? '99+' : cnt;
       el.style.display = cnt > 0 ? 'inline-flex' : 'none';
+    }
+    // Bottom nav cart pill
+    const navWrap = document.querySelector('.bottomnav a[href="/cart"] .icon-wrap');
+    if (navWrap) {
+      let pill = navWrap.querySelector('.pill');
+      if (cnt > 0) {
+        if (!pill) {
+          pill = document.createElement('span');
+          pill.className = 'pill';
+          navWrap.appendChild(pill);
+        }
+        pill.textContent = cnt > 99 ? '99+' : cnt;
+      } else if (pill) {
+        pill.remove();
+      }
+    }
+    if (typeof cnt === 'number' && cnt > 0) {
+      window.toast?.('Ditambahkan ke keranjang ✓', 'success', 1800);
+    }
+  });
+
+  // Auto-add toast for any HTMX 4xx/5xx
+  document.body.addEventListener('htmx:responseError', (e) => {
+    const status = e.detail?.xhr?.status;
+    if (status >= 400) {
+      window.toast?.('Terjadi kesalahan ('+status+'). Coba lagi.', 'error', 2400);
+    }
+  });
+
+  // Auto-close drawer on navigation
+  document.body.addEventListener('click', (e) => {
+    if (e.target.closest('.sidebar a:not(.drawer-toggle)')) {
+      document.body.classList.remove('drawer-open');
     }
   });
 

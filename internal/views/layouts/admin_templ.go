@@ -41,20 +41,20 @@ func Admin(d PageData, active string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"layout\"><aside class=\"sidebar\"><div style=\"padding:.75rem 1.25rem;font-weight:700;color:#fff\">Admin · ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"drawer-backdrop\" onclick=\"document.body.classList.remove('drawer-open')\"></div><div class=\"layout\"><aside class=\"sidebar\" id=\"admin-sidebar\"><div style=\"padding:.75rem 1.25rem;font-weight:700;color:#fff;display:flex;justify-content:space-between;align-items:center\"><span>Admin · ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(d.Store.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/layouts/admin.templ`, Line: 7, Col: 90}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/layouts/admin.templ`, Line: 9, Col: 34}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h3>Toko</h3>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</span> <button type=\"button\" class=\"drawer-toggle\" style=\"display:inline-flex;background:transparent;border-color:rgba(255,255,255,.2)\" onclick=\"document.body.classList.remove('drawer-open')\" aria-label=\"Close menu\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#fff\" stroke-width=\"2\" stroke-linecap=\"round\"><path d=\"M6 6l12 12M6 18L18 6\"></path></svg></button></div><h3>Toko</h3>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -374,7 +374,7 @@ func Admin(d PageData, active string) templ.Component {
 				var templ_7745c5c3_Var32 string
 				templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(intToString(unconfiguredCount(d)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/layouts/admin.templ`, Line: 29, Col: 103}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/layouts/admin.templ`, Line: 35, Col: 103}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 				if templ_7745c5c3_Err != nil {
@@ -385,7 +385,7 @@ func Admin(d PageData, active string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</a> <a href=\"/admin/password\">Ganti Password</a> <a href=\"/admin/tour\">Ulangi Tutorial</a> <a href=\"/logout\">Keluar</a></aside><main class=\"main\" data-tour=\"main\" data-tour-order=\"0\" data-tour-title=\"Selamat datang di Admin Toko MDT 👋\" data-tour-text=\"Tour singkat ini akan memandu Anda melihat fitur utama. Anda bisa lewati kapan saja dan ulangi via menu 'Ulangi Tutorial' di sidebar bawah.\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</a> <a href=\"/admin/password\">Ganti Password</a> <a href=\"/admin/tour\">Ulangi Tutorial</a> <a href=\"/logout\">Keluar</a></aside><main class=\"main\" data-tour=\"main\" data-tour-order=\"0\" data-tour-title=\"Selamat datang di Admin Toko MDT 👋\" data-tour-text=\"Tour singkat ini akan memandu Anda melihat fitur utama. Anda bisa lewati kapan saja dan ulangi via menu 'Ulangi Tutorial' di sidebar bawah.\"><button type=\"button\" class=\"drawer-toggle\" onclick=\"document.body.classList.add('drawer-open')\" aria-label=\"Open menu\"><svg viewBox=\"0 0 24 24\"><path d=\"M3 6h18M3 12h18M3 18h18\"></path></svg></button> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
